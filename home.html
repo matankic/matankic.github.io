@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Matan Kichler</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: row;
+            align-items: flex-start;
+            gap: 30px;
+        }
+        
+        .content {
+            flex: 1;
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 36px;
+        }
+        
+        p {
+            line-height: 1.6;
+            color: #444;
+            margin-bottom: 15px;
+        }
+        
+        .profile-image {
+            width: 250px;
+            height: 250px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-top: 20px;
+        }
+        
+        .links {
+            margin-top: 20px;
+            color: #0066cc;
+        }
+        
+        .links a {
+            color: #0066cc;
+            text-decoration: none;
+            margin-right: 10px;
+        }
+        
+        .links a:hover {
+            text-decoration: underline;
+        }
+        
+        @media (max-width: 768px) {
+            body {
+                flex-direction: column-reverse;
+                align-items: center;
+            }
+            
+            .content {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="content">
+        <h1>Matan Kichler</h1>
+        
+        <p>I am a M.Sc student in the Department of Computer Science and Applied Mathematics at the <a href="https://www.weizmann.ac.il/pages/" target="_blank">Weizmann Institute of Science</a>.</p>
+        
+        <p>My main research interest lies in computational imaging and developing deep learning methods for computer vision applications.</p>
+        
+        <div class="links">
+            <a href="mailto:matankic@gmail.com">Email</a> /
+            <a href="#" target="_blank">CV</a> /
+            <a href="#" target="_blank">Google Scholar</a> /
+            <a href="#" target="https://www.linkedin.com/in/kichler/">LinkedIn</a>
+        </div>
+    </div>
+    
+    <img src="/api/placeholder/250/250" alt="Matan Kichler" class="profile-image">
+</body>
+</html>

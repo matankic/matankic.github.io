@@ -7,8 +7,7 @@
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
-                   Oxygen, Ubuntu, Cantarell, sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
       line-height: 1.6;
       color: #333;
       background: #fff;
@@ -50,6 +49,9 @@
       font-size: 1.1em;
       color: #333;
       font-weight: 500;
+    }
+    .opening-figure {
+      margin: 30px 0;
     }
     .hero-image {
       width: 100%;
@@ -116,6 +118,11 @@
       </div>
       <div class="affiliation">Weizmann Institute of Science</div>
       <div class="conference">ICCV 2025</div>
+      <div class="opening-figure">
+        <object data="images/figure_opening.pdf" type="application/pdf" width="100%" height="600px">
+          <p>Your browser doesn’t support embedded PDFs. <a href="figure_opening.pdf">Download the figure</a>.</p>
+        </object>
+      </div>
     </div>
 
     <div class="hero-image"></div>
@@ -134,10 +141,7 @@
         In Proceedings of the IEEE/CVF International Conference on Computer Vision (ICCV ’25).
       </div>
       <div class="buttons">
-        <a
-          href="Learning_to_infer_container_liquid_levels_using_speckle_vibrometry-10.pdf"
-          class="btn"
-        >Paper (PDF)</a>
+        <a href="Learning_to_infer_container_liquid_levels_using_speckle_vibrometry-10.pdf" class="btn">Paper (PDF)</a>
       </div>
     </div>
 
@@ -172,67 +176,3 @@
       <p>
         Our rig includes a defocused camera capturing speckle patterns of a laser-split 2D grid on
         container surfaces, six speakers for acoustic excitation, and scales for ground-truth fill
-        measurement.
-      </p>
-      <!-- Replace these placeholders with actual images -->
-      <div
-        style="
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-          gap: 20px;
-        "
-      >
-        <img
-          src="images/setup1.png"
-          alt="Experimental rig overview"
-          style="width: 100%; border-radius: 8px;"
-        />
-        <img
-          src="images/setup2.png"
-          alt="Laser grid and camera system"
-          style="width: 100%; border-radius: 8px;"
-        />
-      </div>
-    </div>
-
-    <div class="section">
-      <h2>System Overview</h2>
-      <p>
-        The captured two-axis speckle shifts at three points per container are converted to magnitude
-        spectra via FFT and tokenized. Our Vibration-Transformer applies a shared PointTransformer per
-        point and a ShapeTransformer to fuse multi-point features, outputting container class and
-        fill-level predictions.
-      </p>
-      <img
-        src="images/architecture.png"
-        alt="Vibration-Transformer architecture"
-        style="width: 100%; margin-top: 20px; border-radius: 8px;"
-      />
-    </div>
-
-    <div class="section">
-      <h2>Results</h2>
-      <p>
-        Within-distribution testing yields 2% MAE in fill-level inference. Unseen-instance tests
-        achieve 9% MAE, and ambient-sound scenarios maintain high accuracy. Detailed performance is
-        reported in <a href="#">Table 1</a>.
-      </p>
-      <!-- Placeholder for table or chart -->
-      <img
-        src="images/results-table.png"
-        alt="Summary of quantitative results"
-        style="width: 100%; border-radius: 8px;"
-      />
-    </div>
-
-    <div class="section">
-      <h2>Conclusion</h2>
-      <p>
-        We introduce a first-of-its-kind non-contact method for inferring hidden liquid levels using
-        speckle vibrometry and transformer-based analysis. Our approach opens pathways for remote
-        monitoring of containers in industrial, hazardous, and logistics applications.
-      </p>
-    </div>
-  </div>
-</body>
-</html>

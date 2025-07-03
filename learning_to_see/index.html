@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Split-Lohmann Multifocal Displays</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: white;
+            font-size: 16px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        h1 {
+            font-size: 2.2em;
+            margin-bottom: 20px;
+            font-weight: 400;
+            color: #333;
+        }
+
+        .authors {
+            font-size: 1.1em;
+            margin-bottom: 10px;
+            color: #2196F3;
+        }
+
+        .authors a {
+            color: #2196F3;
+            text-decoration: none;
+        }
+
+        .authors a:hover {
+            text-decoration: underline;
+        }
+
+        .affiliation {
+            font-size: 1em;
+            color: #666;
+            margin-bottom: 10px;
+        }
+
+        .conference {
+            font-size: 1.1em;
+            color: #333;
+            font-weight: 500;
+        }
+
+        .hero-image {
+            width: 100%;
+            max-width: 800px;
+            height: 400px;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            margin: 40px auto;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2em;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-image::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 400"><rect width="800" height="400" fill="%23000"/><circle cx="200" cy="200" r="80" fill="%23444" opacity="0.3"/><rect x="500" y="150" width="120" height="100" fill="%23666" opacity="0.4"/><text x="400" y="200" fill="%23fff" font-size="24" text-anchor="middle">Split-Lohmann Display</text></svg>') center/cover;
+        }
+
+        .focus-labels {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            color: white;
+            font-size: 14px;
+        }
+
+        .focus-labels div {
+            margin-bottom: 5px;
+            padding: 5px 10px;
+            background: rgba(0,0,0,0.5);
+            border-radius: 3px;
+        }
+
+        .description {
+            font-size: 1em;
+            line-height: 1.7;
+            color: #555;
+            margin: 30px 0;
+            text-align: justify;
+        }
+
+        .section {
+            margin-bottom: 50px;
+        }
+
+        .section h2 {
+            font-size: 1.8em;
+            margin-bottom: 25px;
+            color: #333;
+            font-weight: 400;
+        }
+
+        .publications {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 8px;
+            margin: 40px 0;
+        }
+
+        .publication {
+            margin-bottom: 30px;
+        }
+
+        .publication h3 {
+            font-size: 1.2em;
+            color: #333;
+            margin-bottom: 15px;
+            font-weight: 500;
+        }
+
+        .publication-info {
+            font-size: 0.95em;
+            color: #555;
+            margin-bottom: 15px;
+            line-height: 1.6;
+        }
+
+        .publication-info em {
+            font-style: italic;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            font-size: 0.9em;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary {
+            background: #333;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #555;
+        }
+
+        .btn-secondary {
+            background: #666;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #777;
+        }
+
+        .btn-tertiary {
+            background: #888;
+            color: white;
+        }
+
+        .btn-tertiary:hover {
+            background: #999;
+        }
+
+        .btn-quaternary {
+            background: #aaa;
+            color: white;
+        }
+
+        .btn-quaternary:hover {
+            background: #bbb;
+        }
+
+        .btn-quinary {
+            background: #ccc;
+            color: #333;
+        }
+
+        .btn-quinary:hover {
+            background: #ddd;
+        }
+
+        .btn::before {
+            content: '';
+            width: 12px;
+            height: 12px;
+            background: currentColor;
+            border-radius: 2px;
+        }
+
+        .abstract {
+            font-size: 1em;
+            line-height: 1.7;
+            color: #555;
+            text-align: justify;
+        }
+
+        .demo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin: 30px 0;
+        }
+
+        .demo-item {
+            text-align: center;
+        }
+
+        .demo-image {
+            width: 100%;
+            height: 200px;
+            background: #f0f0f0;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #666;
+            font-size: 1.1em;
+            border: 1px solid #ddd;
+        }
+
+        .demo-caption {
+            font-size: 0.9em;
+            color: #666;
+            line-height: 1.4;
+        }
+
+        .video-placeholder {
+            width: 100%;
+            height: 250px;
+            background: #1a1a1a;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2em;
+            margin: 20px 0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .video-placeholder:hover {
+            background: #2a2a2a;
+        }
+
+        .video-placeholder::before {
+            content: '▶';
+            font-size: 2em;
+            margin-right: 15px;
+        }
+
+        .diagram-section {
+            margin: 40px 0;
+        }
+
+        .diagram-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .diagram-item {
+            text-align: center;
+        }
+
+        .diagram-placeholder {
+            width: 100%;
+            height: 150px;
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #666;
+            font-size: 0.9em;
+            margin-bottom: 10px;
+        }
+
+        .diagram-label {
+            font-size: 0.9em;
+            color: #555;
+            font-weight: 500;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px 15px;
+            }
+            
+            h1 {
+                font-size: 1.8em;
+            }
+            
+            .buttons {
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Split-Lohmann Multifocal Displays</h1>
+            <div class="authors">
+                <a href="#">Yingsi Qin</a>&nbsp;&nbsp;&nbsp;&nbsp;
+                <a href="#">Wei-Yu Chen</a>&nbsp;&nbsp;&nbsp;&nbsp;
+                <a href="#">Matthew O'Toole</a>&nbsp;&nbsp;&nbsp;&nbsp;
+                <a href="#">Aswin C. Sankaranarayanan</a>
+            </div>
+            <div class="affiliation">Carnegie Mellon University</div>
+            <div class="conference">SIGGRAPH 2023</div>
+        </div>
+
+        <div class="hero-image">
+            <div class="focus-labels">
+                <div>Far Focus</div>
+                <div style="margin-top: 120px;">Near Focus</div>
+            </div>
+        </div>
+
+        <div class="description">
+            The Split-Lohmann Display is a near-eye 3D display capable of generating a dense set of focal planes simultaneously using a single exposure. Our key innovation is an optical arrangement, which we refer to as Split Lohmann, that enables a high degree of local control in depth selection on a traditional display. Given a scene in the form of an RGBD image, we use a RGB display to project the color image while a phase spatial light modulator (SLM) shows a simple analytical function of the depth map. This produces a 3D multifocal display without requiring time multiplexing. Shown above is a focus stack acquired on our lab prototype using an observer Nikon Z5 camera that is not tethered to the display. Split-Lohmann displays enjoy a number of desirable features including the ability to handle scenes with complex depth maps over a large working range, at high spatial and depth resolutions, and a large étendue. The extreme simplicity of our computational pipeline also enables real-time operations for interactive 3D content.
+        </div>
+
+        <div class="section publications">
+            <h2>Publications</h2>
+            
+            <div class="publication">
+                <h3>SIGGRAPH 2023 Technical Paper</h3>
+                <div class="publication-info">
+                    Yingsi Qin, Wei-Yu Chen, Matthew O'Toole, and Aswin C. Sankaranarayanan. 2023. Split-Lohmann Multifocal Displays. <em>ACM Trans. Graph.</em> 42, 4, Article 1 (August 2023), 18 pages.
+                </div>
+                <div class="buttons">
+                    <a href="#" class="btn btn-primary">Paper</a>
+                    <a href="#" class="btn btn-secondary">Supplementary</a>
+                    <a href="#" class="btn btn-tertiary">6-Minute Video</a>
+                    <a href="#" class="btn btn-quaternary">Code</a>
+                    <a href="#" class="btn btn-quinary">Blender Model</a>
+                </div>
+            </div>
+
+            <div class="publication">
+                <h3>SIGGRAPH 2023 Emerging Technologies</h3>
+                <div class="publication-info">
+                    Yingsi Qin, Wei-Yu Chen, Matthew O'Toole, and Aswin C. Sankaranarayanan. 2023. Single-Shot VR. In <em>Special Interest Group on Computer Graphics and Interactive Techniques Conference Emerging Technologies (SIGGRAPH '23 Emerging Technologies)</em>, August 06-10, 2023. ACM, New York, NY, USA, 2 pages.
+                </div>
+                <div class="buttons">
+                    <a href="#" class="btn btn-primary">Extended Abstract</a>
+                    <a href="#" class="btn btn-secondary">3-Minute Video</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Abstract</h2>
+            <div class="abstract">
+                This work provides the design of a multifocal display that can create a dense stack of focal planes in a single shot. We achieve this using a novel computational lens that provides spatial tunability of its focal length, i.e, the lens appears to have different focal lengths across points on a display behind it. This enables a multifocal display via an appropriate selection of the spatially-varying focal length, thereby avoiding time multiplexing techniques that are associated with traditional focus tunable lenses. The idea central to this design is a modification of a Lohmann lens, a focus tunable lens created with two cubic phase plates that translate relative to each other. Using optical relays and a phase spatial light modulator, we replace the physical translation of the cubic plates with an optical one, while simultaneously allowing for different pixels on the display to undergo different amounts of translations, and consequently, different focal lengths. We refer to this design as the Split-Lohmann multifocal display. Split-Lohmann displays provide a large etendue as well as high spatial and depth resolutions; the absence of time multiplexing as well as the extremely light computational footprint for content processing makes it suitable for video and interactive experiences. Using a lab prototype, we show results over a wide range of static, dynamic and interactive 3D scenes, showcasing high visual quality over a large working range.
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Focus Demonstration</h2>
+            <p>Just like the physical world the human eye sees, when the camera changes focus, it sees sharp content at the focused depth and natural focal blur at other depths.</p>
+            <p>Both static scenes below occupy a depth range from 0.25 m to infinity. The focus stacks below were captured with remotely controlled focus settings of the camera lens at 100 ISO, 1.3 sec exposure, and f/5.6.</p>
+            
+            <div class="demo-grid">
+                <div class="demo-item">
+                    <div class="demo-image">Static Scene 1</div>
+                    <div class="demo-caption">Focus stack demonstration showing depth-of-field effects</div>
+                </div>
+                <div class="demo-item">
+                    <div class="demo-image">Static Scene 2</div>
+                    <div class="demo-caption">Natural focal blur at different depth planes</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Parallax Demonstration</h2>
+            <p>Split-Lohmann displays enjoy a large working depth range, at high spatial and depth resolutions, and a large étendue.</p>
+            <p>Observing parallax. In this scene, the foreground lotus is at 0.25 m and the background lotus is at infinity. To observe parallax, we horizontally moved the camera to the left and right by about 3 mm while capturing a video at 3200 ISO and f/11. We observe that scene points closer to the camera laterally translate a larger amount than scene points further from the camera.</p>
+            
+            <div class="video-placeholder" onclick="playVideo('parallax')">
+                Parallax Video Demonstration
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Real-time Applications</h2>
+            <p>Split-Lohmann displays has an extremely lightweight computational footprint for mapping RGBD content onto the the texture and phase patterns shown on the OLED and phase SLM, respectively. This allows to easily show videos and interactive VR scenes, like 3D games.</p>
+            <p>While the 3D movie was playing or the interactive game was in session, we remotely controlled the focus setting of the camera lens and captured the videos below using the video mode of the camera at 3200 ISO, f/5.6, and 24 fps.</p>
+            
+            <div class="demo-grid">
+                <div class="demo-item">
+                    <div class="video-placeholder" onclick="playVideo('movie')">
+                        3D Movie
+                    </div>
+                    <div class="demo-caption">Real-time 3D movie playback</div>
+                </div>
+                <div class="demo-item">
+                    <div class="video-placeholder" onclick="playVideo('game')">
+                        3D Interactive Game
+                    </div>
+                    <div class="demo-caption">Interactive VR gaming experience</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Technical Implementation</h2>
+            <div class="diagram-section">
+                <p>Derivation of Split-Lohmann multifocal displays. We begin with a traditional model for a multifocal display, which involves a translating display behind an eyepiece, as shown in (a). The physical motion of display can be avoided with a 4f relay and a focus tunable lens as shown in (b). Here, we obtain the focus tunablity with a Lohmann lens; relative translation of the two cubic phase plates of the Lohmann lens leads to an optical axial translation of the display. To avoid physical motion of the display, we can split the cubic phase plates using a 4f relay and use a linear phase ramp to induce optical translations instead. This setup is shown in (c); the phase ramp needs to be introduced in the Fourier plane of the cubic plates. Putting it all together in (d), we observe that the display is 4f away from the phase ramp, which we implement using a phase SLM. The 4f system also ensures that the display pixels are now resolved on the SLM, modulo the effect of the cubic phase plate; we can enable local control on the focal length induced on a display pixel. By implementing a phase pattern with piecewise constant slope, we enable spatially-varying axial shifts on the display; we refer to this system as the Split-Lohmann multifocal display.</p>
+                
+                <div class="diagram-grid">
+                    <div class="diagram-item">
+                        <div class="diagram-placeholder">(a) Traditional<br>Multifocal Display</div>
+                        <div class="diagram-label">Translating display behind eyepiece</div>
+                    </div>
+                    <div class="diagram-item">
+                        <div class="diagram-placeholder">(b) 4f Relay with<br>Lohmann Lens</div>
+                        <div class="diagram-label">Focus tunable lens implementation</div>
+                    </div>
+                    <div class="diagram-item">
+                        <div class="diagram-placeholder">(c) Split Cubic<br>Phase Plates</div>
+                        <div class="diagram-label">Optical translation via phase ramp</div>
+                    </div>
+                    <div class="diagram-item">
+                        <div class="diagram-placeholder">(d) Final System<br>with Phase SLM</div>
+                        <div class="diagram-label">Split-Lohmann multifocal display</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>System Overview</h2>
+            <div class="demo-grid">
+                <div class="demo-item">
+                    <div class="demo-image">Schematic of Workflow</div>
+                    <div class="demo-caption">Computational pipeline for RGBD content processing</div>
+                </div>
+                <div class="demo-item">
+                    <div class="demo-image">Lab Prototype</div>
+                    <div class="demo-caption">Hardware implementation and optical setup</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function playVideo(type) {
+            const videoElement = event.target;
+            const originalText = videoElement.textContent;
+            videoElement.textContent = `Loading ${type} video...`;
+            videoElement.style.background = '#333';
+            
+            // Simulate loading
+            setTimeout(() => {
+                videoElement.textContent = originalText;
+                videoElement.style.background = '#1a1a1a';
+            }, 2000);
+        }
+
+        // Add smooth scrolling for better UX
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>

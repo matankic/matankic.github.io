@@ -261,7 +261,6 @@
         <div class="section">
             <div class="publication-box">
                 <h2>Publications</h2>
-                <div class="publication-title">Publication</div>
                 <div class="publication-info">
                     Matan Kichler, Shai Bagon, and Mark Sheinin. 2025. <em>Learning to See Inside Opaque Liquid Containers using Speckle Vibrometry</em>. In Proceedings of the IEEE/CVF International Conference on Computer Vision (ICCV '25).
                 </div>
@@ -278,14 +277,14 @@
 
         <div class="section">
             <h2>Key Results</h2>
-            <div class="results-box">
+            <p>
                 <ul>
                     <li>Non-contact inference of liquid fill level with 2–9% MAE across 23 container types</li>
                     <li>Generalization to unseen instances, levels (25/50/75%), and ambient sound excitations</li>
                     <li>Novel speckle vibrometry prototype capturing 6×6 laser grid at up to 57 kHz</li>
                     <li>Transformer architecture jointly inferring container class and fill level using SORD loss</li>
                 </ul>
-            </div>
+            </p>
         </div>
 
         <div class="section">
@@ -293,7 +292,7 @@
             <p>The captured two-axis speckle shifts at three points per container are converted to magnitude spectra via FFT and tokenized. Our Vibration-Transformer applies a shared PointTransformer per point and a ShapeTransformer to fuse multi-point features, outputting container class and fill-level predictions.</p>
             
             <div class="method-image">
-                <img src="images/architecture.png" alt="Vibration-Transformer architecture diagram" />
+                <img src="images/Architecture.png" alt="Vibration-Transformer architecture diagram" />
             </div>
         </div>
 

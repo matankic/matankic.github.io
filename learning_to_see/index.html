@@ -1,283 +1,335 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Learning to See Inside Opaque Liquid Containers using Speckle Vibrometry</title>
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-      line-height: 1.6;
-      color: #333;
-      background: #fff;
-      font-size: 16px;
-    }
-    .container {
-      max-width: 900px;
-      margin: 0 auto;
-      padding: 40px 20px;
-    }
-    .header {
-      text-align: center;
-      margin-bottom: 40px;
-    }
-    h1 {
-      font-size: 2.2em;
-      margin-bottom: 20px;
-      font-weight: 400;
-    }
-    .authors {
-      display: inline-flex;
-      gap: 1.5rem;
-      font-size: 1.1em;
-      margin-bottom: 12px;
-    }
-    .authors a {
-      color: #209cee;
-      text-decoration: none;
-    }
-    .authors a:hover {
-      text-decoration: underline;
-    }
-    .affiliation {
-      font-size: 1em;
-      color: #666;
-      margin-bottom: 10px;
-    }
-    .conference {
-      font-size: 1.1em;
-      color: #333;
-      font-weight: 500;
-    }
-    .opening-figure img {
-      max-width: 600px;
-      width: 100%;
-      height: auto;
-      border-radius: 8px;
-      margin: 20px auto;
-      display: block;
-    }
-    .hero-image {
-      width: 100%;
-      max-width: 800px;
-      height: 400px;
-      background: url('images/hero-speckle.png') center/cover;
-      margin: 40px auto;
-      border-radius: 8px;
-      position: relative;
-    }
-    .description,
-    .abstract {
-      font-size: 1em;
-      line-height: 1.7;
-      color: #555;
-      margin: 30px 0;
-      text-align: justify;
-    }
-    .section {
-      margin-bottom: 50px;
-    }
-    .section h2 {
-      font-size: 1.8em;
-      margin-bottom: 25px;
-      font-weight: 400;
-    }
-    .publication-info {
-      font-size: 0.95em;
-      color: #555;
-      margin-bottom: 15px;
-      line-height: 1.6;
-    }
-    .publication-info em {
-      font-style: italic;
-    }
-    .buttons {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
-    .btn {
-      padding: 8px 16px;
-      border: none;
-      border-radius: 4px;
-      font-size: 0.9em;
-      cursor: pointer;
-      text-decoration: none;
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      transition: all 0.2s ease;
-      background: #333;
-      color: #fff;
-    }
-    .btn:hover {
-      background: #555;
-    }
-    .demo-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px,1fr));
-      gap: 30px;
-      margin: 30px 0;
-    }
-    .demo-item {
-      text-align: center;
-    }
-    .demo-image {
-      width: 100%;
-      height: 200px;
-      background: #f0f0f0;
-      border-radius: 8px;
-      border: 1px solid #ddd;
-      margin-bottom: 15px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: #666;
-      font-size: 1.1em;
-    }
-    .demo-caption {
-      font-size: 0.9em;
-      color: #666;
-      line-height: 1.4;
-    }
-    .video-placeholder {
-      width: 100%;
-      height: 250px;
-      background: #1a1a1a;
-      border-radius: 8px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: white;
-      font-size: 1.2em;
-      margin: 20px 0;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      position: relative;
-    }
-    .video-placeholder::before {
-      content: '▶';
-      font-size: 2em;
-      margin-right: 15px;
-    }
-    .video-placeholder:hover {
-      background: #2a2a2a;
-    }
-    .diagram-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px,1fr));
-      gap: 20px;
-      margin: 20px 0;
-    }
-    .diagram-item {
-      text-align: center;
-    }
-    .diagram-placeholder {
-      width: 100%;
-      height: 150px;
-      background: #f8f9fa;
-      border: 2px solid #e9ecef;
-      border-radius: 8px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: #666;
-      font-size: 0.9em;
-      margin-bottom: 10px;
-    }
-    .diagram-label {
-      font-size: 0.9em;
-      color: #555;
-      font-weight: 500;
-    }
-    @media (max-width: 768px) {
-      .container { padding: 20px 15px; }
-      h1 { font-size: 1.8em; }
-      .buttons { justify-content: center; }
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Learning to See Inside Opaque Liquid Containers using Speckle Vibrometry</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #fff;
+            margin: 0;
+            padding: 0;
+            font-size: 16px;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .title {
+            font-size: 2.2em;
+            font-weight: normal;
+            margin-bottom: 20px;
+            color: #333;
+        }
+        
+        .authors {
+            font-size: 1.1em;
+            margin-bottom: 10px;
+        }
+        
+        .authors a {
+            color: #4A90E2;
+            text-decoration: none;
+            margin-right: 20px;
+        }
+        
+        .authors a:hover {
+            text-decoration: underline;
+        }
+        
+        .affiliation {
+            font-size: 1em;
+            color: #666;
+            margin-bottom: 10px;
+        }
+        
+        .conference {
+            font-size: 1.1em;
+            font-weight: 500;
+            color: #333;
+        }
+        
+        .teaser-image {
+            text-align: center;
+            margin: 40px 0;
+        }
+        
+        .teaser-image img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .description {
+            font-size: 1.1em;
+            line-height: 1.7;
+            color: #444;
+            margin: 30px 0;
+            text-align: justify;
+        }
+        
+        .section {
+            margin-bottom: 50px;
+        }
+        
+        .section h2 {
+            font-size: 1.8em;
+            font-weight: normal;
+            margin-bottom: 20px;
+            color: #333;
+        }
+        
+        .publication-box {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .publication-title {
+            font-size: 1.1em;
+            font-weight: 500;
+            margin-bottom: 10px;
+            color: #333;
+        }
+        
+        .publication-info {
+            font-size: 0.95em;
+            color: #666;
+            margin-bottom: 15px;
+            line-height: 1.6;
+        }
+        
+        .publication-info em {
+            font-style: italic;
+        }
+        
+        .buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 15px;
+        }
+        
+        .btn {
+            padding: 8px 16px;
+            background: #333;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            font-size: 0.9em;
+            transition: background-color 0.2s;
+        }
+        
+        .btn:hover {
+            background: #555;
+        }
+        
+        .abstract-box {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            font-size: 1em;
+            line-height: 1.7;
+            text-align: justify;
+        }
+        
+        .results-box {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .results-box ul {
+            margin: 0;
+            padding-left: 20px;
+        }
+        
+        .results-box li {
+            margin-bottom: 8px;
+            font-size: 1em;
+        }
+        
+        .method-image {
+            text-align: center;
+            margin: 30px 0;
+        }
+        
+        .method-image img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .demo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+        
+        .demo-item {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .demo-placeholder {
+            width: 100%;
+            height: 150px;
+            background: #e9ecef;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 15px;
+            color: #666;
+            font-size: 0.9em;
+        }
+        
+        .demo-caption {
+            font-size: 0.9em;
+            color: #666;
+            line-height: 1.4;
+        }
+        
+        p {
+            font-size: 1em;
+            text-align: justify;
+            margin-bottom: 15px;
+            line-height: 1.6;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px 15px;
+            }
+            
+            .title {
+                font-size: 1.8em;
+            }
+            
+            .authors a {
+                margin-right: 10px;
+            }
+            
+            .demo-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
 </head>
 <body>
-  <div class="container">
-    <div class="header">
-      <h1>Learning to See Inside Opaque Liquid Containers using Speckle Vibrometry</h1>
-      <div class="authors">
-        <a href="https://matankic.github.io/about">Matan Kichler</a>
-        <a href="https://www.weizmann.ac.il/math/bagon/home">Shai Bagon</a>
-        <a href="https://www.marksheinin.com/about">Mark Sheinin</a>
-      </div>
-      <div class="affiliation">Weizmann Institute of Science</div>
-      <div class="conference">ICCV 2025</div>
-      <div class="opening-figure">
-        <img src="images/figure_opening.png" alt="Opening Figure" loading="lazy"/>
-      </div>
-    </div>
-
-    <div class="hero-image"></div>
-
-    <div class="description">
-      We present a novel speckle-based vibrometry system that captures surface vibrations of opaque liquid containers remotely, enabling first-of-its-kind inference of hidden liquid levels without physical handling or weighing.
-    </div>
-
-    <div class="section publications">
-      <h2>Publication</h2>
-      <div class="publication-info">
-        Matan Kichler, Shai Bagon, and Mark Sheinin. 2025. <em>Learning to See Inside Opaque Liquid Containers using Speckle Vibrometry</em>. In Proceedings of the IEEE/CVF International Conference on Computer Vision (ICCV ’25).
-      </div>
-      <div class="buttons">
-        <a href="Learning_to_infer_container_liquid_levels_using_speckle_vibrometry-10.pdf" class="btn">Paper (PDF)</a>
-      </div>
-    </div>
-
-    <div class="section">
-      <h2>Abstract</h2>
-      <div class="abstract">
-        Conventional cameras cannot see through opaque container walls to determine fill levels. We propose a speckle-based vibration sensing system that captures millimeter-scale surface vibrations at multiple points on sealed containers. By illuminating containers with a laser grid and capturing high-speed speckle shifts, we record multi-point vibration signals elicited by acoustic excitation. We then introduce Vibration-Transformer, a novel transformer-based architecture that processes the spectral vibration responses to jointly classify container type and infer hidden liquid levels. Our system generalizes across unseen speaker positions, container instances, and ambient noises, achieving 2–9% mean absolute error in within- and out-of-distribution tests. This approach facilitates non-contact monitoring of liquid levels in challenging settings such as heavy, hazardous, or hard-to-reach containers.
-      </div>
-    </div>
-
-    <div class="section">
-      <h2>Key Results</h2>
-      <ul>
-        <li>Non-contact inference of liquid fill level with 2–9% MAE across 23 container types.</li>
-        <li>Generalization to unseen instances, levels (25/50/75%), and ambient sound excitations.</li>
-        <li>Novel speckle vibrometry prototype capturing 6×6 laser grid at up to 57 kHz.</li>
-        <li>Transformer architecture jointly inferring container class and fill level using SORD loss.</li>
-      </ul>
-    </div>
-
-    <div class="section">
-      <h2>Experimental Setup</h2>
-      <p>Our rig includes a defocused camera capturing speckle patterns of a laser-split 2D grid on container surfaces, six speakers for acoustic excitation, and scales for ground-truth fill measurement.</p>
-      <div class="demo-grid">
-        <div class="demo-item">
-          <div class="demo-image">Static Scene 1</div>
-          <div class="demo-caption">Focus stack demonstration showing depth-of-field effects</div>
+    <div class="container">
+        <div class="header">
+            <h1 class="title">Learning to See Inside Opaque Liquid Containers using Speckle Vibrometry</h1>
+            <div class="authors">
+                <a href="https://matankic.github.io/about">Matan Kichler</a>
+                <a href="https://www.weizmann.ac.il/math/bagon/home">Shai Bagon</a>
+                <a href="https://www.marksheinin.com/about">Mark Sheinin</a>
+            </div>
+            <div class="affiliation">Weizmann Institute of Science</div>
+            <div class="conference">ICCV 2025</div>
         </div>
-        <div class="demo-item">
-          <div class="demo-image">Static Scene 2</div>
-          <div class="demo-caption">Natural focal blur at different depth planes</div>
+
+        <div class="teaser-image">
+            <img src="images/figure_opening.png" alt="System overview showing speckle vibrometry setup for liquid level detection" />
         </div>
-      </div>
-    </div>
 
-    <div class="section">
-      <h2>System Overview</h2>
-      <p>The captured two-axis speckle shifts at three points per container are converted to magnitude spectra via FFT and tokenized. Our Vibration-Transformer applies a shared PointTransformer per point and a ShapeTransformer to fuse multi-point features, outputting container class and fill-level predictions.</p>
-      <img src="images/architecture.png" alt="Vibrations Transformer architecture" style="width:100%;margin-top:20px;border-radius:8px;"/>
-    </div>
+        <div class="description">
+            We present a novel speckle-based vibrometry system that captures surface vibrations of opaque liquid containers remotely, enabling first-of-its-kind inference of hidden liquid levels without physical handling or weighing.
+        </div>
 
-    <div class="section">
-      <h2>Results</h2>
-      <p>Within-distribution testing yields 2% MAE in fill-level inference. Unseen-instance tests achieve 9% MAE, and ambient-sound scenarios maintain high accuracy. Detailed performance is reported in <a href="#">Table 1</a>.</p>
-      <img src="images/results-table.png" alt="Summary of quantitative results" style="width:100%;border-radius:8px;"/>
-    </div>
+        <div class="section">
+            <h2>Publications</h2>
+            <div class="publication-box">
+                <div class="publication-title">ICCV 2025 Technical Paper</div>
+                <div class="publication-info">
+                    Matan Kichler, Shai Bagon, and Mark Sheinin. 2025. <em>Learning to See Inside Opaque Liquid Containers using Speckle Vibrometry</em>. In Proceedings of the IEEE/CVF International Conference on Computer Vision (ICCV '25).
+                </div>
+                <div class="buttons">
+                    <a href="Learning_to_infer_container_liquid_levels_using_speckle_vibrometry-10.pdf" class="btn">📄 Paper</a>
+                </div>
+            </div>
+        </div>
 
-    <div class="section">
-      <h2>Conclusion</h2>
-      <p>We introduce a first-of-its-kind non-contact method for inferring hidden liquid levels using speckle vibrometry and transformer-based analysis. Our approach opens pathways for remote monitoring of containers in industrial, hazardous, and logistics applications.</p>
+        <div class="section">
+            <h2>Abstract</h2>
+            <div class="abstract-box">
+                Conventional cameras cannot see through opaque container walls to determine fill levels. We propose a speckle-based vibration sensing system that captures millimeter-scale surface vibrations at multiple points on sealed containers. By illuminating containers with a laser grid and capturing high-speed speckle shifts, we record multi-point vibration signals elicited by acoustic excitation. We then introduce Vibration-Transformer, a novel transformer-based architecture that processes the spectral vibration responses to jointly classify container type and infer hidden liquid levels. Our system generalizes across unseen speaker positions, container instances, and ambient noises, achieving 2–9% mean absolute error in within- and out-of-distribution tests. This approach facilitates non-contact monitoring of liquid levels in challenging settings such as heavy, hazardous, or hard-to-reach containers.
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Key Results</h2>
+            <div class="results-box">
+                <ul>
+                    <li>Non-contact inference of liquid fill level with 2–9% MAE across 23 container types</li>
+                    <li>Generalization to unseen instances, levels (25/50/75%), and ambient sound excitations</li>
+                    <li>Novel speckle vibrometry prototype capturing 6×6 laser grid at up to 57 kHz</li>
+                    <li>Transformer architecture jointly inferring container class and fill level using SORD loss</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>System Overview</h2>
+            <p>The captured two-axis speckle shifts at three points per container are converted to magnitude spectra via FFT and tokenized. Our Vibration-Transformer applies a shared PointTransformer per point and a ShapeTransformer to fuse multi-point features, outputting container class and fill-level predictions.</p>
+            
+            <div class="method-image">
+                <img src="images/architecture.png" alt="Vibration-Transformer architecture diagram" />
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Experimental Setup</h2>
+            <p>Our experimental rig includes a defocused camera capturing speckle patterns of a laser-split 2D grid on container surfaces, six speakers for acoustic excitation, and scales for ground-truth fill measurement.</p>
+            
+            <div class="demo-grid">
+                <div class="demo-item">
+                    <div class="demo-placeholder">Speckle Pattern Capture</div>
+                    <div class="demo-caption">High-speed camera captures laser speckle patterns on container surfaces</div>
+                </div>
+                <div class="demo-item">
+                    <div class="demo-placeholder">Acoustic Excitation</div>
+                    <div class="demo-caption">Multi-speaker setup provides controlled vibration input</div>
+                </div>
+                <div class="demo-item">
+                    <div class="demo-placeholder">Vibration Analysis</div>
+                    <div class="demo-caption">Transformer processes spectral features for level inference</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Results</h2>
+            <p>Within-distribution testing yields 2% MAE in fill-level inference. Unseen-instance tests achieve 9% MAE, and ambient-sound scenarios maintain high accuracy across different container types and acoustic conditions.</p>
+            
+            <div class="method-image">
+                <img src="images/results-table.png" alt="Quantitative results table showing performance metrics" />
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Conclusion</h2>
+            <p>We introduce a first-of-its-kind non-contact method for inferring hidden liquid levels using speckle vibrometry and transformer-based analysis. Our approach opens pathways for remote monitoring of containers in industrial, hazardous, and logistics applications, demonstrating robust performance across diverse conditions and container types.</p>
+        </div>
     </div>
-  </div>
 </body>
 </html>

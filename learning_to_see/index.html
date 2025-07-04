@@ -69,7 +69,6 @@
             max-width: 60%;
             height: auto;
             border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
             image-rendering: -webkit-optimize-contrast;
             image-rendering: crisp-edges;
         }
@@ -95,8 +94,16 @@
         
         .publication-box {
             background: #f5f5f5;
-            border-radius: 8px;
-            padding: 20px;
+            border-top-style: solid;
+            border-bottom-style: solid;
+            border-right-width: 0px;
+            border-right-style: solid;
+            border-left-style: solid;
+            border-top-width: 0px;
+            border-left-width: 0px;
+            border-bottom-width: 5px;
+            border-radius: 12px;
+            padding: 0px 20px 20px 20px;
             margin: 20px 0;
         }
         
@@ -172,10 +179,8 @@
         }
         
         .method-image img {
-            max-width: 90%;
+            max-width: 100%;
             height: auto;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
         
         .demo-grid {

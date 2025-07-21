@@ -264,14 +264,10 @@
         }
         
         p {
-            font-family: 'Charter', 'Georgia', serif;
-            font-size: 1.1em;
+            font-size: 1em;
             text-align: justify;
-            margin-bottom: 18px;
-            line-height: 1.8;
-            font-weight: 400;
-            color: #1a202c;
-            letter-spacing: 0.2px;
+            margin-bottom: 15px;
+            line-height: 1.6;
         }
         
         .bibtex-container {
@@ -333,6 +329,66 @@
             }
         }
     </style>
+    <script>
+        function copyBibTeX(button) {
+            const bibtexText = document.getElementById('bibtex-text').textContent;
+            
+            // Use the modern Clipboard API if available
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(bibtexText).then(function() {
+                    // Show success feedback
+                    const originalText = button.textContent;
+                    button.textContent = 'Copied!';
+                    button.classList.add('copied');
+                    
+                    setTimeout(function() {
+                        button.textContent = originalText;
+                        button.classList.remove('copied');
+                    }, 2000);
+                }).catch(function(err) {
+                    console.error('Failed to copy text: ', err);
+                    fallbackCopy(bibtexText, button);
+                });
+            } else {
+                // Fallback for older browsers or non-secure contexts
+                fallbackCopy(bibtexText, button);
+            }
+        }
+        
+        function fallbackCopy(text, button) {
+            // Create a temporary textarea element
+            const textArea = document.createElement('textarea');
+            textArea.value = text;
+            textArea.style.position = 'fixed';
+            textArea.style.left = '-999999px';
+            textArea.style.top = '-999999px';
+            document.body.appendChild(textArea);
+            
+            textArea.focus();
+            textArea.select();
+            
+            try {
+                document.execCommand('copy');
+                // Show success feedback
+                const originalText = button.textContent;
+                button.textContent = 'Copied!';
+                button.classList.add('copied');
+                
+                setTimeout(function() {
+                    button.textContent = originalText;
+                    button.classList.remove('copied');
+                }, 2000);
+            } catch (err) {
+                console.error('Fallback copy failed: ', err);
+                button.textContent = 'Copy failed';
+                setTimeout(function() {
+                    button.textContent = 'Copy';
+                }, 2000);
+            } finally {
+                document.body.removeChild(textArea);
+            }
+        }
+    </script>
 </head>
     <body>
     <div class="construction-banner">
@@ -477,12 +533,14 @@
         <h2>BibTeX</h2>
         <div class="abstract-box bibtex-container">
             <button class="copy-button" onclick="copyBibTeX(this)">Copy</button>
-            <pre id="bibtex-text" style="font-family: 'Courier New', monospace; font-size: 0.9em; line-height: 1.4; margin: 0; white-space: pre-wrap;">@inproceedings{2025seeinsidecontainers,
-          title={Learning to See Inside Opaque Liquid Containers using Speckle Vibrometry},
-          author={Kichler, Matan and Bagon, Shai and Sheinin, Mark},
-          booktitle={ICCV},
-          year={2025}
-        }</pre>
+            <pre id="bibtex-text" style="font-family: 'Courier New', monospace; font-size: 0.9em; line-height: 1.4; margin: 0; white-space: pre-wrap;">
+            @inproceedings{2025seeinsidecontainers,
+                title={Learning to See Inside Opaque Liquid Containers using Speckle Vibrometry},
+                author={Kichler, Matan and Bagon, Shai and Sheinin, Mark},
+                booktitle={ICCV},
+                year={2025}
+            }
+            </pre>
         </div>
     </div>
 

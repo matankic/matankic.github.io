@@ -213,14 +213,11 @@
         }
 
         .full-width-image {
-            width: 150vw;
-            max-width: 150vw;
-            margin-left: -25vw;
-            margin-right: -25vw;
+            width: 140%;
+            max-width: 140%;
+            margin-left: -20%;
+            margin-right: -20%;
             display: block;
-            position: relative;
-            left: 50%;
-            transform: translateX(-50%);
         }
         
         .method-image {
@@ -300,9 +297,9 @@
             }
 
             .full-width-image {
-                width: 140vw;
-                margin-left: -20vw;
-                margin-right: -20vw;
+                width: 120%;
+                margin-left: -10%;
+                margin-right: -10%;
             }
         }
     </style>
@@ -404,14 +401,12 @@
                 </ul>
             </p>
         </div>
-
+        
         <div class="section">
             <h2>System Overview</h2>
             <p>The captured two-axis speckle shifts at three points per container are converted to magnitude spectra via FFT and tokenized. Our Vibration-Transformer applies a shared PointTransformer per point and a ShapeTransformer to fuse multi-point features, outputting container class and fill-level predictions.</p>
             
-            <div class="method-image">
-                <img src="images/Architecture.png" alt="Vibration-Transformer architecture diagram" class="full-width-image" />
-            </div>
+            <img src="images/Architecture.png" alt="Vibration-Transformer architecture diagram" class="full-width-image" />
         </div>
 
         <div class="section">

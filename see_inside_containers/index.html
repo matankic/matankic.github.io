@@ -473,26 +473,14 @@
 
         <div class="section">
             <h2>Abstract</h2>
-            <p>Conventional cameras cannot see through opaque container walls to determine fill levels. We propose a speckle-based vibration sensing system that captures millimeter-scale surface vibrations at multiple points on sealed containers. By illuminating containers with a laser grid and capturing high-speed speckle shifts, we record multi-point vibration signals elicited by acoustic excitation. We then introduce Vibration-Transformer, a novel transformer-based architecture that processes the spectral vibration responses to jointly classify container type and infer hidden liquid levels. Our system generalizes across unseen speaker positions, container instances, and ambient noises, achieving 2–9% mean absolute error in within- and out-of-distribution tests. This approach facilitates non-contact monitoring of liquid levels in challenging settings such as heavy, hazardous, or hard-to-reach containers.</p>
+            <p>Conventional cameras cannot see through opaque container walls to determine fill levels. We propose a speckle-based vibration sensing system that captures millimeter-scale surface vibrations at multiple points on sealed containers. By illuminating containers with a laser grid and capturing high-speed speckle shifts, we record multi-point vibration signals elicited by acoustic excitation. We then introduce Vibration Transformer, a novel transformer-based architecture that processes the spectral vibration responses to jointly classify container type and infer hidden liquid levels. Our system generalizes across unseen speaker positions, container instances, and ambient noises, achieving 2–9% mean absolute error in within- and out-of-distribution tests. This approach facilitates non-contact monitoring of liquid levels in challenging settings such as heavy, hazardous, or hard-to-reach containers.</p>
         </div>
 
-        <div class="section">
-            <h2>Key Results</h2>
-            <p>
-                <ul>
-                    <li>Non-contact inference of liquid fill level with 2–9% MAE across 23 container types</li>
-                    <li>Generalization to unseen instances, levels (25/50/75%), and ambient sound excitations</li>
-                    <li>Novel speckle vibrometry prototype capturing 6×6 laser grid at up to 57 kHz</li>
-                    <li>Transformer architecture jointly inferring container class and fill level using SORD loss</li>
-                </ul>
-            </p>
-        </div>
         
         <div class="section">
-            <h2>System Overview</h2>
-            <p>The captured two-axis speckle shifts at three points per container are converted to magnitude spectra via FFT and tokenized. Our Vibration-Transformer applies a shared PointTransformer per point and a ShapeTransformer to fuse multi-point features, outputting container class and fill-level predictions.</p>
-            
-            <img src="images/Architecture.png" alt="Vibration-Transformer architecture diagram" class="full-width-image" />
+            <h2>System Overview</h2>            
+            <img src="images/Architecture.png" alt="Vibration Transformer architecture diagram" class="full-width-image" />
+            <p>The captured two-axis speckle shifts at three points per container are converted to magnitude spectra via FFT and tokenized. Our Vibration Transformer applies a shared PointTransformer per point and a ShapeTransformer to fuse multi-point features, outputting container class and fill-level predictions.</p>
         </div>
 
         <div class="section">
@@ -515,20 +503,7 @@
             </div>
         </div>
 
-        <div class="section">
-            <h2>Results</h2>
-            <p>Within-distribution testing yields 2% MAE in fill-level inference. Unseen-instance tests achieve 9% MAE, and ambient-sound scenarios maintain high accuracy across different container types and acoustic conditions.</p>
-            
-            <div class="method-image">
-                <img src="images/results-table.png" alt="Quantitative results table showing performance metrics" />
-            </div>
-        </div>
-
-        <div class="section">
-            <h2>Conclusion</h2>
-            <p>We introduce a first-of-its-kind non-contact method for inferring hidden liquid levels using speckle vibrometry and transformer-based analysis. Our approach opens pathways for remote monitoring of containers in industrial, hazardous, and logistics applications, demonstrating robust performance across diverse conditions and container types.</p>
-        </div>
-
+        
     <div class="section" id="BibTeX">
         <h2>BibTeX</h2>
         <div class="abstract-box bibtex-container">

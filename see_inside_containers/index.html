@@ -16,42 +16,22 @@
         }
 
         .construction-banner {
-            background: linear-gradient(135deg, #ff6b35, #ff8e53);
-            color: white;
+            background: #f8f9fa;
+            color: #6c757d;
             text-align: center;
-            padding: 12px 20px;
+            padding: 10px 20px;
             font-weight: 500;
-            font-size: 0.95em;
-            box-shadow: 0 2px 8px rgba(255, 107, 53, 0.3);
-            position: relative;
-            overflow: hidden;
+            font-size: 0.9em;
+            border-bottom: 1px solid #dee2e6;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
         }
         
-        .construction-banner::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: repeating-linear-gradient(
-                45deg,
-                transparent,
-                transparent 10px,
-                rgba(255, 255, 255, 0.1) 10px,
-                rgba(255, 255, 255, 0.1) 20px
-            );
-            animation: slide 20s linear infinite;
-        }
-        
-        @keyframes slide {
-            0% { transform: translate(-50%, -50%); }
-            100% { transform: translate(-25%, -25%); }
-        }
-        
-        .construction-banner span {
-            position: relative;
-            z-index: 1;
+        body {
+            padding-top: 50px; /* Add space for the fixed banner */
         }
         
         .container {
@@ -233,18 +213,11 @@
         }
 
         .full-width-image {
-            width: 140%;
-            max-width: 140%;
-            margin-left: -10%;
-            margin-right: -10%;
-        }
-        
-        @media (max-width: 768px) {
-            .full-width-image {
-                width: 110%;
-                margin-left: -5%;
-                margin-right: -5%;
-            }
+            width: 130vw;
+            max-width: 130vw;
+            margin-left: -15vw;
+            transform: translateX(0);
+            display: block;
         }
         
         .method-image {
@@ -321,6 +294,11 @@
             .external-link {
                 padding: 8px 12px;
                 font-size: 0.85em;
+            }
+
+            .full-width-image {
+                width: 120vw;
+                margin-left: -10vw;
             }
         }
     </style>

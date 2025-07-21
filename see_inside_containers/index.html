@@ -264,10 +264,40 @@
         }
         
         p {
-            font-size: 1em;
+            font-family: 'Charter', 'Georgia', serif;
+            font-size: 1.1em;
             text-align: justify;
-            margin-bottom: 15px;
-            line-height: 1.6;
+            margin-bottom: 18px;
+            line-height: 1.8;
+            font-weight: 400;
+            color: #1a202c;
+            letter-spacing: 0.2px;
+        }
+        
+        .bibtex-container {
+            position: relative;
+        }
+        
+        .copy-button {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: #333;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.8em;
+            transition: background-color 0.2s;
+        }
+        
+        .copy-button:hover {
+            background: #555;
+        }
+        
+        .copy-button.copied {
+            background: #28a745;
         }
         
         @media (max-width: 768px) {
@@ -312,7 +342,7 @@
         <div class="header">
             <h1 class="title">Learning to See Inside Opaque Liquid Containers using Speckle Vibrometry</h1>
             <div class="authors">
-                <a href="https://matankic.github.io/about">Matan Kichler</a>
+                <a href="https://matankic.github.io">Matan Kichler</a>
                 <a href="https://www.weizmann.ac.il/math/bagon/home">Shai Bagon</a>
                 <a href="https://www.marksheinin.com/about">Mark Sheinin</a>
             </div>
@@ -445,16 +475,20 @@
 
     <div class="section" id="BibTeX">
         <h2>BibTeX</h2>
-        <div class="abstract-box">
-            <pre style="font-family: 'Courier New', monospace; font-size: 0.9em; line-height: 1.4; margin: 0; white-space: pre-wrap;">@inproceedings{2025seeinsidecontainers,
-      title={Learning to See Inside Opaque Liquid Containers using Speckle Vibrometry},
-      author={Kichler, Matan and Bagon, Shai and Sheinin, Mark},
-      booktitle={Proceedings of the IEEE/CVF International Conference on Computer Vision (ICCV)},
-      year={2025}
-    }</pre>
-    </div> 
-        <h3 style="margin-top: 30px; margin-bottom: 15px; font-size: 1.3em;">Acknowledgements</h3>
-        <p style="font-size: 0.95em; color: #666;">This work was supported by the Weizmann Center for New Scientists, the Institute of AI, and the MBZUAI-WIS Joint Program (SB).</p>
+        <div class="abstract-box bibtex-container">
+            <button class="copy-button" onclick="copyBibTeX(this)">Copy</button>
+            <pre id="bibtex-text" style="font-family: 'Courier New', monospace; font-size: 0.9em; line-height: 1.4; margin: 0; white-space: pre-wrap;">@inproceedings{2025seeinsidecontainers,
+          title={Learning to See Inside Opaque Liquid Containers using Speckle Vibrometry},
+          author={Kichler, Matan and Bagon, Shai and Sheinin, Mark},
+          booktitle={ICCV},
+          year={2025}
+        }</pre>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>Acknowledgements</h2>
+        <p>This work was supported by the Weizmann Center for New Scientists, the Institute of AI, and the MBZUAI-WIS Joint Program (SB).</p>
     </div>
         
     </div>

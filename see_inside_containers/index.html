@@ -174,13 +174,33 @@
         }
 
         .fill-level-image {
-            text-align: center;
+          position: relative;
+          display: inline-block;
+          max-width: 100%;
+          width: 85vw;         /* make the wrapper 85% of the viewport width */
+          margin: 0 auto;      
         }
         
         .fill-level-image img {
-            max-width: 85%;
-            height: auto;
+          display: block;
+          width: 100%;
+          height: auto;
         }
+        
+        .fill-level-image .play-btn {
+          position: absolute;
+          bottom: 8px;             /* tweak up/down as you like */
+          transform: translateX(-50%);
+          background: rgba(0,0,0,0.6);
+          border: none;
+          border-radius: 50%;
+          width: 32px;
+          height: 32px;
+          font-size: 1.1em;
+          color: #fff;
+          cursor: pointer;
+        }
+
         
         .description {
             font-size: 1.1em;
@@ -565,8 +585,24 @@
             <h2>Dataset</h2>            
             <p>In total our dataset contains 5910 individual data samples.</p>
             <div class="fill-level-image">
-                <img src="images/fill_levels.png" />
+              <img src="images/fill_levels.png" alt="Fill-level bottles" />
+            
+              <!-- six buttons, positioned at ≈10%, 30%, 50%, 70%, 90%, 110% across the image -->
+              <button class="play-btn" style="left:10%" onclick="document.getElementById('audio0').play()">▶</button>
+              <button class="play-btn" style="left:30%" onclick="document.getElementById('audio1').play()">▶</button>
+              <button class="play-btn" style="left:50%" onclick="document.getElementById('audio2').play()">▶</button>
+              <button class="play-btn" style="left:70%" onclick="document.getElementById('audio3').play()">▶</button>
+              <button class="play-btn" style="left:90%" onclick="document.getElementById('audio4').play()">▶</button>
+              <button class="play-btn" style="left:110%" onclick="document.getElementById('audio5').play()">▶</button>
             </div>
+            
+            <!-- hidden audio elements anywhere in the body: -->
+            <audio id="audio0" src="audios/level0.mp3"></audio>
+            <audio id="audio1" src="audios/level20.mp3"></audio>
+            <audio id="audio2" src="audios/level40.mp3"></audio>
+            <audio id="audio3" src="audios/level60.mp3"></audio>
+            <audio id="audio4" src="audios/level80.mp3"></audio>
+            <audio id="audio5" src="audios/level100.mp3"></audio>
         </div>
         
         <div class="section">

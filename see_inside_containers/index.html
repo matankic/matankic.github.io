@@ -175,10 +175,9 @@
 
         .fill-level-image {
           position: relative;
-          display: inline-block;
           max-width: 100%;
-          width: 85vw;         /* make the wrapper 85% of the viewport width */
-          margin: 0 auto;      
+          width: 85%;
+          margin: auto;
         }
         
         .fill-level-image img {
@@ -189,14 +188,14 @@
         
         .fill-level-image .play-btn {
           position: absolute;
-          bottom: 8px;             /* tweak up/down as you like */
+          bottom: -45px;             /* tweak up/down as you like */
           transform: translateX(-50%);
           background: rgba(0,0,0,0.6);
           border: none;
           border-radius: 50%;
-          width: 32px;
-          height: 32px;
-          font-size: 1.1em;
+          width: 40px;
+          height: 40px;
+          font-size: 1.3em;
           color: #fff;
           cursor: pointer;
         }
@@ -587,13 +586,12 @@
             <div class="fill-level-image">
               <img src="images/fill_levels.png" alt="Fill-level bottles" />
             
-              <!-- six buttons, positioned at ≈10%, 30%, 50%, 70%, 90%, 110% across the image -->
-              <button class="play-btn" style="left:10%" onclick="document.getElementById('audio0').play()">▶</button>
-              <button class="play-btn" style="left:30%" onclick="document.getElementById('audio1').play()">▶</button>
-              <button class="play-btn" style="left:50%" onclick="document.getElementById('audio2').play()">▶</button>
-              <button class="play-btn" style="left:70%" onclick="document.getElementById('audio3').play()">▶</button>
-              <button class="play-btn" style="left:90%" onclick="document.getElementById('audio4').play()">▶</button>
-              <button class="play-btn" style="left:110%" onclick="document.getElementById('audio5').play()">▶</button>
+              <button class="play-btn" style="left:8%" onclick="document.getElementById('audio0').play()">▶</button>
+              <button class="play-btn" style="left:24.5%" onclick="document.getElementById('audio1').play()">▶</button>
+              <button class="play-btn" style="left:41%" onclick="document.getElementById('audio2').play()">▶</button>
+              <button class="play-btn" style="left:57.5%" onclick="document.getElementById('audio3').play()">▶</button>
+              <button class="play-btn" style="left:74%" onclick="document.getElementById('audio4').play()">▶</button>
+              <button class="play-btn" style="left:90.5%" onclick="document.getElementById('audio5').play()">▶</button>
             </div>
             
             <!-- hidden audio elements anywhere in the body: -->

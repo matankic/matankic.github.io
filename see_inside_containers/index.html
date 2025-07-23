@@ -186,18 +186,17 @@
           height: auto;
         }
         
-        .fill-level-image .play-btn {
-          position: absolute;
-          bottom: -45px;             /* tweak up/down as you like */
-          transform: translateX(-50%);
-          background: rgba(0,0,0,0.6);
-          border: none;
-          border-radius: 50%;
-          width: 40px;
-          height: 40px;
-          font-size: 1.3em;
-          color: #fff;
-          cursor: pointer;
+        .wine-glasses-image {
+          position: relative;
+          max-width: 100%;
+          width: 85%;
+          margin: auto;
+        }
+        
+        .wine-glasses-image img {
+          display: block;
+          width: 100%;
+          height: auto;
         }
         
         .section {
@@ -616,6 +615,32 @@
         <div class="section">
             <p>We present a novel speckle-based vibrometry system that captures surface vibrations of opaque liquid containers remotely, enabling first-of-its-kind inference of hidden liquid levels without physical handling or weighing.</p>
 
+            <div class="wine-glasses-image">
+                <img src="images/wine_glasses.png" alt="wine glasses" />
+
+                <button class="pushable" style="left:7.5%" onclick="toggleAudio('audio0', this)">
+                    <span class="front">▶</span>
+                </button>
+                <button class="pushable" style="left:24%" onclick="toggleAudio('audio1', this)">
+                    <span class="front">▶</span>
+                </button>
+                <button class="pushable" style="left:40.5%" onclick="toggleAudio('audio2', this)">
+                    <span class="front">▶</span>
+                </button>
+                <button class="pushable" style="left:57%" onclick="toggleAudio('audio3', this)">
+                    <span class="front">▶</span>
+                </button>
+                <button class="pushable" style="left:73.5%" onclick="toggleAudio('audio4', this)">
+                    <span class="front">▶</span>
+                </button>
+                <button class="pushable" style="left:90%" onclick="toggleAudio('audio5', this)">
+                    <span class="front">▶</span>
+                </button>
+            </div>
+            
+            <div style="height: 30px;"></div>
+            
+            
             <div class="fill-level-image">
                 <img src="images/fill_levels.png" alt="Fill-level bottles" />
 

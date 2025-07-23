@@ -358,6 +358,29 @@
         .copy-button.copied {
             background: #28a745;
         }
+
+        .pushable {
+        background: hsl(0deg 0% 60%);
+        border-radius: 50px;
+        border: none;
+        padding: 0;
+        cursor: pointer;
+        outline-offset: 4px;
+        }
+        
+        .front {
+        display: block;
+        padding: 8px 25px;
+        border-radius: 50px;
+        font-size: 1.5rem;
+        background: hsl(0deg 0% 90%);
+        color:  hsl(0deg 0% 40%);
+        transform: translateY(-8px);
+        }
+        
+        .pushable:active .front {
+        transform: translateY(-2px);
+        }
         
         @media (max-width: 768px) {
             .container {
@@ -584,14 +607,26 @@
             <h2>Dataset</h2>            
             <p>In total our dataset contains 5910 individual data samples.</p>
             <div class="fill-level-image">
-              <img src="images/fill_levels.png" alt="Fill-level bottles" />
-            
-              <button class="play-btn" style="left:8%" onclick="document.getElementById('audio0').play()">▶</button>
-              <button class="play-btn" style="left:24.5%" onclick="document.getElementById('audio1').play()">▶</button>
-              <button class="play-btn" style="left:41%" onclick="document.getElementById('audio2').play()">▶</button>
-              <button class="play-btn" style="left:57.5%" onclick="document.getElementById('audio3').play()">▶</button>
-              <button class="play-btn" style="left:74%" onclick="document.getElementById('audio4').play()">▶</button>
-              <button class="play-btn" style="left:90.5%" onclick="document.getElementById('audio5').play()">▶</button>
+                <img src="images/fill_levels.png" alt="Fill-level bottles" />
+
+                <button class="pushable" style="left:8%" onclick="document.getElementById('audio0').play()">
+                    <span class="front">►</span>
+                </button>
+                <button class="pushable" style="left:24.5%" onclick="document.getElementById('audio1').play()">
+                    <span class="front">►</span>
+                </button>
+                <button class="pushable" style="left:41%" onclick="document.getElementById('audio2').play()">
+                    <span class="front">►</span>
+                </button>
+                <button class="pushable" style="left:57.5%" onclick="document.getElementById('audio3').play()">
+                    <span class="front">►</span>
+                </button>
+                <button class="pushable" style="left:74%" onclick="document.getElementById('audio4').play()">
+                    <span class="front">►</span>
+                </button>
+                <button class="pushable" style="left:90.5%" onclick="document.getElementById('audio5').play()">
+                    <span class="front">►</span>
+                </button>
             </div>
             
             <!-- hidden audio elements anywhere in the body: -->

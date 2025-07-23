@@ -360,26 +360,29 @@
         }
 
         .pushable {
-        background: hsl(0deg 0% 60%);
-        border-radius: 50px;
-        border: none;
-        padding: 0;
-        cursor: pointer;
-        outline-offset: 4px;
+            background: hsl(0deg 0% 60%);
+            border-radius: 50px;
+            border: none;
+            padding: 0;
+            cursor: pointer;
+            outline-offset: 4px;
+            position: absolute;
+            bottom: -65px;
+            transform: translateX(-50%);
         }
         
         .front {
-        display: block;
-        padding: 8px 25px;
-        border-radius: 50px;
-        font-size: 1.5rem;
-        background: hsl(0deg 0% 90%);
-        color:  hsl(0deg 0% 40%);
-        transform: translateY(-8px);
+            display: block;
+            padding: 6px 20px;
+            border-radius: 50px;
+            font-size: 1.25rem;
+            background: hsl(0deg 0% 90%);
+            color:  hsl(0deg 0% 50%);
+            transform: translateY(-6px);
         }
         
         .pushable:active .front {
-        transform: translateY(-2px);
+            transform: translateY(-2px);
         }
         
         @media (max-width: 768px) {

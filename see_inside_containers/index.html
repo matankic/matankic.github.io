@@ -361,20 +361,20 @@
 
         .pushable {
             background: hsl(0deg 0% 60%);
-            border-radius: 50%;
+            border-radius: 50px;
             border: none;
             padding: 0;
             cursor: pointer;
             outline-offset: 4px;
             position: absolute;
-            bottom: -50px;
+            bottom: -55px;
             transform: translateX(-50%);
         }
         
         .front {
             display: block;
             padding: 6px 20px;
-            border-radius: 50%;
+            border-radius: 50px;
             font-size: 1.25rem;
             background: hsl(0deg 0% 90%);
             color:  hsl(0deg 0% 50%);
@@ -382,6 +382,10 @@
         }
         
         .pushable:active .front {
+            transform: translateY(-2px);
+        }
+        
+        .pushable.playing .front {
             transform: translateY(-2px);
         }
         
@@ -424,6 +428,27 @@
         }
     </style>
     <script>
+        function toggleAudio(audioId, button) {
+            const audio = document.getElementById(audioId);
+            
+            if (audio.paused) {
+                // Start playing
+                audio.play();
+                button.classList.add('playing');
+                
+                // Remove the class when audio ends
+                audio.addEventListener('ended', function() {
+                    button.classList.remove('playing');
+                }, { once: true });
+                
+            } else {
+                // Stop playing
+                audio.pause();
+                audio.currentTime = 0;
+                button.classList.remove('playing');
+            }
+        }
+        
         function copyBibTeX(button) {
             const bibtexText = document.getElementById('bibtex-text').textContent;
             
@@ -612,22 +637,22 @@
             <div class="fill-level-image">
                 <img src="images/fill_levels.png" alt="Fill-level bottles" />
 
-                <button class="pushable" style="left:7.5%" onclick="document.getElementById('audio0').play()">
+                <button class="pushable" style="left:7.5%" onclick="toggleAudio('audio0', this)">
                     <span class="front">▶</span>
                 </button>
-                <button class="pushable" style="left:24%" onclick="document.getElementById('audio1').play()">
+                <button class="pushable" style="left:24%" onclick="toggleAudio('audio1', this)">
                     <span class="front">▶</span>
                 </button>
-                <button class="pushable" style="left:40.5%" onclick="document.getElementById('audio2').play()">
+                <button class="pushable" style="left:40.5%" onclick="toggleAudio('audio2', this)">
                     <span class="front">▶</span>
                 </button>
-                <button class="pushable" style="left:57%" onclick="document.getElementById('audio3').play()">
+                <button class="pushable" style="left:57%" onclick="toggleAudio('audio3', this)">
                     <span class="front">▶</span>
                 </button>
-                <button class="pushable" style="left:73.5%" onclick="document.getElementById('audio4').play()">
+                <button class="pushable" style="left:73.5%" onclick="toggleAudio('audio4', this)">
                     <span class="front">▶</span>
                 </button>
-                <button class="pushable" style="left:90%" onclick="document.getElementById('audio5').play()">
+                <button class="pushable" style="left:90%" onclick="toggleAudio('audio5', this)">
                     <span class="front">▶</span>
                 </button>
             </div>
@@ -656,7 +681,7 @@
 @inproceedings{Kichler:2025,
     title={Learning to See Inside Opaque Liquid Containers using Speckle Vibrometry},
     author={Kichler, Matan and Bagon, Shai and Sheinin, Mark},
-    booktitle={Proc. IEEE/CVF ICCV},
+    booktitle={2025 IEEE/CVF International Conference on Computer Vision (ICCV)},
     year={2025}
 }</pre>
         </div>

@@ -55,6 +55,14 @@
             color: #4a4a4a;
         }
         
+        .subtitle {
+            font-family: helvetica, 'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #4a4a4a;
+        }
+        
+        
         .authors {
             font-size: 1.5em;
         }
@@ -183,14 +191,14 @@
           height: auto;
         }
         
-        .wine-glasses-image {
+        .system.png {
           position: relative;
           max-width: 100%;
-          width: 30%;
+          width: 80%;
           margin: auto;
         }
         
-        .wine-glasses-image img {
+        .system.png img {
           display: block;
           width: 100%;
           height: auto;
@@ -611,23 +619,24 @@
 
 
         <div class="section">
-            <p>Ever clinked wine glasses and noticed how the pitch changes as you pour more in? Try it yourself—click the play buttons to hear the difference! When you tap a symmetrical wine glass, its uniform shape and material give rise to one clear, dominant vibration mode. It’s almost like a single bell tone soaring higher when the glass is emptier and dipping lower as it fills.</p>
             
-            <div class="wine-glasses-image">
-                <img src="images/wine_glasses.png" alt="wine glasses" />
+            <h1 class="subtitle">Can you hear the contents of a Coke bottle?</h1>
+            <p><b>TL;DR:</b> Yes, we can! (and by “we,” we mean a novel AI model). We accomplish this by sensing the tiny vibrations on the bottle’s surface and relating them to the bottle’s liquid level and type (i.e., Coke bottle, milk carton, etc.).</p>
 
-                <button class="pushable" style="left:29%" onclick="toggleAudio('wine_1', this)">
-                    <span class="front">▶</span>
-                </button>
-                <button class="pushable" style="left:72%" onclick="toggleAudio('wine_2', this)">
-                    <span class="front">▶</span>
-                </button>
+            <h1 class="subtitle">I’m intrigued—tell me (a little) more?</h1>
+            <p>First, we must capture these tiny surface vibrations at high speeds. To achieve this, we develop a novel computational imaging system that can capture object vibrations remotely for a 2D grid of scene points. </p>
+            <p>We use our system to sense the vibrations of multiple scene containers at once, while we “excite” the vibrations using a nearby speaker by playing some sound (press to hear “never”).</p>
+            
+            <div class="system">
+                <img src="images/system.png" alt="system overview" />
             </div>
             
-            <div style="height: 60px;"></div>
-            <p>But what happens if you move beyond crystal and switch to your everyday containers—think soda cans, milk cartons or those mystery boxes under the sink? You won’t get that one neat tone you’re used to; instead, you’re met with a tangle of overlapping resonances. And if the container is opaque, you can’t even peek inside to see how much liquid remains. Suddenly, relying on sound alone feels like trying to read tea leaves in a hurricane.</p>
+            <p>For each container, we measure two-axis vibrations at multiple surface points (three points in the figure above). We input the vibrations into a novel physics-inspired Vibration Transformer, which is trained to predict the container type and its hidden liquid level.</p>
 
-            <p>Here’s a little challenge for you: we took the very same carton and filled it to six different levels, then excited it with a chirp and recorded the response. Can you hear how the spectral ‘fingerprint’ shifts each time? Click below to play—and see if you can tell the differences!</p>
+            <img src="images/Architecture.png" alt="Vibration-Transformer architecture diagram" class="full-width-image" />
+
+            <h1 class="subtitle">So why do you need an AI model for this task?</h1>
+            <p>The relationship between the vibration response of everyday containers to their fill level is actually quite complex. Don’t believe me? Try for yourself. Press below the containers to hear their response for different fill levels. Can you spot a pattern?</p>
             
             <div class="fill-level-image">
                 <img src="images/fill_levels.png" alt="Fill-level bottles" />
@@ -654,9 +663,11 @@
             
             <div style="height: 60px;"></div>
 
-            <p>Surprised? Us too. But in our new work, we show that this seemingly chaotic vibration soup actually hides a treasure trove of information—if you know how to listen. As the figure reveals, we project a laser grid onto containers and use a defocused high-speed camera to capture three distinct speckle vibration signals per container. Feeding those into the Vibration Transformer lets us learn not just the frequency information about the vibrational modes, but also the shapes of the mode—and from that, recover how full the container is, without ever touching it.</p>
-
-            <p>More details coming soon. Stay tuned!</p>
+            <p>If you couldn’t, don’t blame yourself. The vibrational response depends on various factors, including object geometry, materials, fluid-structure interactions, and additional factors. Luckily, our Vibration Transformer has a more acute “ear” than you, and can successfully classify the container’s hidden liquid level for a variety of containers (which we demonstrate experimentally).</p>
+            
+            <p>Moreover, our architecture is robust to the vibration source, yielding correct liquid level estimates for controlled and ambient scene sound sources. And, our model generalizes to unseen container instances within known classes (e.g., training on five Coke cans of a six-pack, testing on a sixth) and fluid levels.</p>
+            
+            <p><b>Full details coming soon.</b></p>
             
             <!-- hidden audio elements anywhere in the body: -->
             <audio id="wine_1" src="audios/wine_1.wav"></audio>

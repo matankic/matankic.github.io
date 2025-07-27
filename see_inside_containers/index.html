@@ -60,7 +60,8 @@
             font-size: 1.3em;
             font-weight: bold;
             color: #4a4a4a;
-            margin-top: 2em;
+            margin-top: 1em;
+            margin-bottom: -0.2em;
         }
         
         
@@ -627,13 +628,19 @@
             <h1 class="subtitle">I’m intrigued—tell me (a little) more?</h1>
             <p>First, we must capture these tiny surface vibrations at high speeds. To achieve this, we develop a novel computational imaging system that can capture object vibrations remotely for a 2D grid of scene points. </p>
             <p>We use our system to sense the vibrations of multiple scene containers at once, while we “excite” the vibrations using a nearby speaker by playing some sound (press to hear “never”).</p>
+
+            <div style="height: 20px;"></div>
             
             <div class="system-image">
                 <img src="images/system.png" alt="system overview" />
             </div>
             
+            <div style="height: 20px;"></div>
+            
             <p>For each container, we measure two-axis vibrations at multiple surface points (three points in the figure above). We input the vibrations into a novel physics-inspired Vibration Transformer, which is trained to predict the container type and its hidden liquid level.</p>
-
+            
+            <div style="height: 20px;"></div>
+            
             <img src="images/Architecture.png" alt="Vibration-Transformer architecture diagram" class="full-width-image" />
 
             <h1 class="subtitle">So why do you need an AI model for this task?</h1>

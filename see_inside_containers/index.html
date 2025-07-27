@@ -272,11 +272,17 @@
             font-size: 1em;
         }
 
-        .full-width-image {
+/*         .full-width-image {
             width: 140%;
             max-width: 140%;
             margin-left: -20%;
             margin-right: -20%;
+            display: block;
+        } */
+
+        .full-width-image {
+            width: 100%;
+            max-width: 100%;
             display: block;
         }
         
@@ -627,13 +633,13 @@
 
             <h1 class="subtitle">I’m intrigued—tell me (a little) more?</h1>
             <p>First, we must capture these tiny surface vibrations at high speeds. To achieve this, we develop a novel computational imaging system that can capture object vibrations remotely for a 2D grid of scene points. </p>
-            <p>We use our system to sense the vibrations of multiple scene containers at once, while we "excite" the vibrations using a nearby speaker by playing some <span onclick="toggleAudio('neveerGonnaGiveYouUp', this)" style="color: #209cee; font-weight:bold; cursor: pointer;">sound</span> (press to hear "never").</p>
+            <p>We use our system to sense the vibrations of multiple scene containers at once, while we "excite" the vibrations using a nearby speaker by playing some <span onclick="toggleAudio('neveerGonnaGiveYouUp', this)" style="color: #209cee; font-weight:bold; cursor: pointer;">sound</span>.</p>
             <div style="height: 20px;"></div>
             
             <div class="system-image">
                 <img src="images/system.png" alt="system overview" />
-                <p style="position: absolute; left: 19%; margin-top: 5px;">capturing six containers</p>
-                <p style="position: absolute; left: 74%; margin-top: 5px;">camera system</p>
+                <p style="position: absolute; left: 19%; margin-top: 5px; font-weight:bold;">capturing six containers</p>
+                <p style="position: absolute; left: 74%; margin-top: 5px; font-weight:bold;">camera system</p>
             </div>
             
             <div style="height: 40px;"></div>

@@ -1020,7 +1020,46 @@
                         return;
                     }
                 } catch {}
-                // If neither exists, leave buffer undefined (renderer shows noise fallback)
+                // 3) WAV via decodeAudioData (no playback/autoplay needed)
+                try {
+                    const res = await fetch(`SNR_experiment/${db}dB.wav`);
+                    if (res.ok) {
+                        const arr = await res.arrayBuffer();
+                        let ctxDecode = window.__decodeCtx;
+                        if (!ctxDecode) {
+                            try {
+                                ctxDecode = new (window.AudioContext || window.webkitAudioContext)();
+                            } catch (e) {
+                                try {
+                                    const Offline = window.OfflineAudioContext || window.webkitOfflineAudioContext;
+                                    ctxDecode = new Offline(1, 1, 44100);
+                                } catch (e2) {
+                                    ctxDecode = null;
+                                }
+                            }
+                            window.__decodeCtx = ctxDecode;
+                        }
+                        if (ctxDecode && ctxDecode.decodeAudioData) {
+                            const audioBuf = await new Promise((resolve, reject) => {
+                                // Some browsers support promise-based decode; others callback
+                                try {
+                                    const p = ctxDecode.decodeAudioData(arr, resolve, reject);
+                                    if (p && typeof p.then === 'function') p.then(resolve).catch(reject);
+                                } catch (err) {
+                                    reject(err);
+                                }
+                            });
+                            const chan = audioBuf.getChannelData(0);
+                            buffers[db] = new Float32Array(chan);
+                            sampleRates[db] = audioBuf.sampleRate || 44100;
+                            playheads[db] = 0;
+                            return;
+                        }
+                    }
+                } catch (err) {
+                    console.warn('WAV decode failed for', db, err);
+                }
+                // If none available, leave buffer undefined (renderer shows noise fallback)
             }
 
             async function bootstrapSignals() {

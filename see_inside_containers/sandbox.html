@@ -736,10 +736,7 @@
             const NUM_LEVELS = 12;  // 0..11
             const STEP_DEG = (MAX_ANGLE - MIN_ANGLE) / (NUM_LEVELS - 1);
             
-            // --- Signal state declared early to avoid TDZ when setLevel -> updateSignalTarget uses it ---
-            let currentDbTarget = 0; // 0..44 in steps of 4
-            let lastTimestamp = performance.now();
-            let rAF;
+            // Remove signal state (not used now)
 
             // Generate ticks on a not-full circle arc
             for (let i = 0; i < NUM_LEVELS; i++) {
@@ -779,8 +776,7 @@
 
                 wrapper.dataset.level = String(clamped);
 
-                // Update signal rendering state
-                updateSignalTarget(db);
+                // No signal panel; nothing else to update
             }
 
             function angleToLevel(angleDeg) {
@@ -944,250 +940,8 @@
                 hintRafId = requestAnimationFrame(frame);
             }
 
-            // Trigger the hint shortly after load
+            // Trigger the hint shortly after load (4 passes total)
             setTimeout(animateHint, 900);
-
-            // ---------------- Signal rendering -----------------
-            const thdMap = {
-                44: { thd: 25.85, f: 422.0 },
-                40: { thd: 23.04, f: 422.0 },
-                36: { thd: 19.27, f: 422.0 },
-                32: { thd: 15.5,  f: 422.0 },
-                28: { thd: 11.85, f: 422.0 },
-                24: { thd: 8.203, f: 422.0 },
-                20: { thd: 3.125, f: 422.0 },
-                16: { thd: -1.554, f: 422.0 },
-                12: { thd: -5.517, f: 422.0 },
-                8:  { thd: -6.988, f: 422.0 },
-                4:  { thd: -14.11, f: 422.0 },
-                0:  { thd: -29.18, f: 422.0 }
-            };
-
-            const scroller = document.getElementById('waveScroller');
-            const svg1 = document.getElementById('waveSvg1');
-            const svg2 = document.getElementById('waveSvg2');
-            const path1 = document.getElementById('wavePath1');
-            const path2 = document.getElementById('wavePath2');
-            const group1 = document.getElementById('waveGroup1');
-            const group2 = document.getElementById('waveGroup2');
-            const metaEl = document.getElementById('signalMeta');
-
-            function setSvgViewBox() {
-                const rect = scroller.parentElement.getBoundingClientRect();
-                const w = Math.max(300, Math.floor(rect.width / 2));
-                const h = Math.max(120, Math.floor(rect.height));
-                svg1.setAttribute('viewBox', `0 0 ${w} ${h}`);
-                svg2.setAttribute('viewBox', `0 0 ${w} ${h}`);
-                svg1.dataset.w = w; svg1.dataset.h = h;
-                svg2.dataset.w = w; svg2.dataset.h = h;
-                // grid lines
-                [group1, group2].forEach(g => { while (g.firstChild) g.removeChild(g.firstChild); });
-                for (let x = 0; x < w; x += 40) {
-                    const line1 = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-                    line1.setAttribute('x1', String(x)); line1.setAttribute('y1', '0');
-                    line1.setAttribute('x2', String(x)); line1.setAttribute('y2', String(h));
-                    line1.setAttribute('class', 'signal-grid-line');
-                    group1.appendChild(line1);
-                    const line2 = line1.cloneNode(true);
-                    group2.appendChild(line2);
-                }
-                for (let y = 0; y < h; y += 32) {
-                    const line1 = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-                    line1.setAttribute('x1', '0'); line1.setAttribute('y1', String(y));
-                    line1.setAttribute('x2', String(w)); line1.setAttribute('y2', String(y));
-                    line1.setAttribute('class', 'signal-grid-line');
-                    group1.appendChild(line1);
-                    const line2 = line1.cloneNode(true);
-                    group2.appendChild(line2);
-                }
-            }
-            setSvgViewBox();
-            window.addEventListener('resize', setSvgViewBox);
-
-            // Numeric-sample approach (robust on GitHub Pages): load NPY/JSON per SNR level
-            const dBLevels = [0,4,8,12,16,20,24,28,32,36,40,44];
-            const buffers = {};     // db -> Float32Array (mono)
-            const sampleRates = {}; // db -> number
-            const playheads = {};   // db -> float index (advances continuously)
-
-            function parseNpy(arrayBuffer) {
-                const magic = new Uint8Array(arrayBuffer, 0, 6);
-                const magicStr = String.fromCharCode(...magic);
-                if (!magicStr.startsWith('\u0093NUMPY')) throw new Error('Not NPY');
-                const dv = new DataView(arrayBuffer);
-                const verMajor = dv.getUint8(6);
-                const verMinor = dv.getUint8(7);
-                const headerLen = verMajor === 1 ? dv.getUint16(8, true) : dv.getUint32(8, true);
-                const headerStart = verMajor === 1 ? 10 : 12;
-                const headerBytes = new Uint8Array(arrayBuffer, headerStart, headerLen);
-                const header = new TextDecoder('latin1').decode(headerBytes);
-                const descrMatch = header.match(/'descr':\s*'([^']+)'/);
-                const shapeMatch = header.match(/'shape':\s*\(([^\)]*)\)/);
-                if (!descrMatch || !shapeMatch) throw new Error('NPY header parse failed');
-                const descr = descrMatch[1];
-                const littleEndian = descr[0] === '<' || descr[0] === '|';
-                const type = descr.slice(1);
-                const shapeParts = shapeMatch[1].split(',').map(s => s.trim()).filter(Boolean);
-                const length = parseInt(shapeParts[0] || '0', 10);
-                const dataOffset = headerStart + headerLen;
-                let data;
-                if (type === 'f4') {
-                    data = new Float32Array(arrayBuffer, dataOffset, length);
-                } else if (type === 'f8') {
-                    data = new Float64Array(arrayBuffer, dataOffset, length);
-                } else {
-                    throw new Error('Unsupported dtype ' + type);
-                }
-                if (!littleEndian) {
-                    const bytes = new Uint8Array(arrayBuffer, dataOffset, data.byteLength);
-                    for (let i = 0; i < bytes.length; i += 4) {
-                        [bytes[i], bytes[i+3]] = [bytes[i+3], bytes[i]];
-                        [bytes[i+1], bytes[i+2]] = [bytes[i+2], bytes[i+1]];
-                    }
-                }
-                const out = new Float32Array(length);
-                for (let i = 0; i < length; i++) out[i] = data[i];
-                return { sampleRate: 44100, data: out };
-            }
-
-            async function loadSignal(db) {
-                // Try NPY first, then JSON as fallback
-                try {
-                    const res = await fetch(`SNR_experiment/${db}dB.npy`);
-                    if (res.ok) {
-                        const arr = await res.arrayBuffer();
-                        const { sampleRate, data } = parseNpy(arr);
-                        buffers[db] = data;
-                        sampleRates[db] = sampleRate;
-                        playheads[db] = 0;
-                        return;
-                    }
-                } catch {}
-                try {
-                    const res = await fetch(`SNR_experiment/${db}dB.json`);
-                    if (res.ok) {
-                        const j = await res.json();
-                        buffers[db] = new Float32Array(j.data);
-                        sampleRates[db] = j.sampleRate || 44100;
-                        playheads[db] = 0;
-                        return;
-                    }
-                } catch {}
-                // 3) WAV via decodeAudioData (no playback/autoplay needed)
-                try {
-                    const res = await fetch(`SNR_experiment/${db}dB.wav`);
-                    if (res.ok) {
-                        const arr = await res.arrayBuffer();
-                        let ctxDecode = window.__decodeCtx;
-                        if (!ctxDecode) {
-                            try {
-                                ctxDecode = new (window.AudioContext || window.webkitAudioContext)();
-                            } catch (e) {
-                                try {
-                                    const Offline = window.OfflineAudioContext || window.webkitOfflineAudioContext;
-                                    ctxDecode = new Offline(1, 1, 44100);
-                                } catch (e2) {
-                                    ctxDecode = null;
-                                }
-                            }
-                            window.__decodeCtx = ctxDecode;
-                        }
-                        if (ctxDecode && ctxDecode.decodeAudioData) {
-                            const audioBuf = await new Promise((resolve, reject) => {
-                                // Some browsers support promise-based decode; others callback
-                                try {
-                                    const p = ctxDecode.decodeAudioData(arr, resolve, reject);
-                                    if (p && typeof p.then === 'function') p.then(resolve).catch(reject);
-                                } catch (err) {
-                                    reject(err);
-                                }
-                            });
-                            const chan = audioBuf.getChannelData(0);
-                            buffers[db] = new Float32Array(chan);
-                            sampleRates[db] = audioBuf.sampleRate || 44100;
-                            playheads[db] = 0;
-                            return;
-                        }
-                    }
-                } catch (err) {
-                    console.warn('WAV decode failed for', db, err);
-                }
-                // If none available, leave buffer undefined (renderer shows noise fallback)
-            }
-
-            async function bootstrapSignals() {
-                // Ensure 0 dB is ready for OFF
-                await loadSignal(0);
-                // Load others lazily
-                dBLevels.filter(v => v !== 0).forEach(db => {
-                    loadSignal(db).catch(() => {});
-                });
-            }
-
-            // Signal state (declared earlier already). Ensure defaults.
-            currentDbTarget = currentDbTarget || 0;
-            lastTimestamp = performance.now();
-            // rAF already declared earlier
-
-            function updateSignalTarget(db) {
-                if (typeof db !== 'number') db = 0;
-                if (db < 0) db = 0;
-                if (db > 44) db = 44;
-                // Snap to nearest multiple of 4
-                currentDbTarget = Math.round(db / 4) * 4;
-                const info = thdMap[currentDbTarget] || thdMap[0];
-                metaEl.textContent = `SNR: ${currentDbTarget} dB | THD: ${info.thd} | f = ${info.f} Hz`;
-            }
-
-            // SVG path rendering using a horizontally scrolling container
-            function drawWave() {
-                const w = Number(svg1.dataset.w || 480);
-                const h = Number(svg1.dataset.h || 160);
-                const baseline = h / 2;
-                const scaleY = h * 0.45;
-                const buf = buffers[currentDbTarget];
-                const sr = sampleRates[currentDbTarget] || 44100;
-                const samplesPerPixel = sr / 120; // 120 px/sec
-                const head = playheads[currentDbTarget] || 0;
-
-                function buildPath(startIndex) {
-                    let d = '';
-                    for (let x = 0; x < w; x++) {
-                        let s;
-                        if (buf && buf.length > 0) {
-                            const idx = startIndex + x * samplesPerPixel;
-                            const i0 = Math.floor(idx) % buf.length;
-                            const i1 = (i0 + 1) % buf.length;
-                            const frac = idx - Math.floor(idx);
-                            s = buf[i0] * (1 - frac) + buf[i1] * frac;
-                        } else {
-                            s = (Math.random() - 0.5) * 0.6;
-                        }
-                        const y = baseline - s * scaleY;
-                        d += (x === 0 ? `M ${x} ${y}` : ` L ${x} ${y}`);
-                    }
-                    return d;
-                }
-
-                // Build two halves for seamless loop
-                path1.setAttribute('d', buildPath(head));
-                path2.setAttribute('d', buildPath(head + w * samplesPerPixel));
-            }
-
-            function tick(now) {
-                const sr = sampleRates[currentDbTarget] || 44100;
-                const samplesPerPixel = sr / 120; // 120 px/sec
-                if (playheads[currentDbTarget] == null) playheads[currentDbTarget] = 0;
-                playheads[currentDbTarget] = (playheads[currentDbTarget] + samplesPerPixel * (1/60) * 2) % 1e9;
-                drawWave();
-                requestAnimationFrame(tick);
-            }
-
-            updateSignalTarget(0);
-            bootstrapSignals().then(() => {
-                drawWave();
-                requestAnimationFrame(tick);
-            });
         });
     </script>
 </head>
@@ -1325,38 +1079,6 @@
                         <div class="title">Speaker Volume</div>
                         <button class="volume-label" id="volumeLabel" type="button" aria-live="polite">OFF</button>
                     </div>
-                </div>
-
-                <div class="signal-panel">
-                    <div class="signal-title">Recovered signal from vibrations</div>
-                    <div class="signal-card">
-                        <div class="signal-canvas-wrap">
-                            <div class="wave-scroller" id="waveScroller">
-                                <svg class="signal-svg" id="waveSvg1" preserveAspectRatio="none">
-                                    <g id="waveGroup1"></g>
-                                    <path id="wavePath1" class="signal-path" d="" />
-                                </svg>
-                                <svg class="signal-svg" id="waveSvg2" preserveAspectRatio="none">
-                                    <g id="waveGroup2"></g>
-                                    <path id="wavePath2" class="signal-path" d="" />
-                                </svg>
-                            </div>
-                        </div>
-                        <div class="signal-meta" id="signalMeta">SNR: 0 dB | THD: -29.18 | f = 422.0 Hz</div>
-                    </div>
-                    <!-- hidden audio sources for SNR experiment -->
-                    <audio id="snr0"  src="SNR_experiment/0dB.wav"  muted autoplay loop preload="auto" playsinline crossorigin="anonymous" style="display:none"></audio>
-                    <audio id="snr4"  src="SNR_experiment/4dB.wav"  muted autoplay loop preload="auto" playsinline crossorigin="anonymous" style="display:none"></audio>
-                    <audio id="snr8"  src="SNR_experiment/8dB.wav"  muted autoplay loop preload="auto" playsinline crossorigin="anonymous" style="display:none"></audio>
-                    <audio id="snr12" src="SNR_experiment/12dB.wav" muted autoplay loop preload="auto" playsinline crossorigin="anonymous" style="display:none"></audio>
-                    <audio id="snr16" src="SNR_experiment/16dB.wav" muted autoplay loop preload="auto" playsinline crossorigin="anonymous" style="display:none"></audio>
-                    <audio id="snr20" src="SNR_experiment/20dB.wav" muted autoplay loop preload="auto" playsinline crossorigin="anonymous" style="display:none"></audio>
-                    <audio id="snr24" src="SNR_experiment/24dB.wav" muted autoplay loop preload="auto" playsinline crossorigin="anonymous" style="display:none"></audio>
-                    <audio id="snr28" src="SNR_experiment/28dB.wav" muted autoplay loop preload="auto" playsinline crossorigin="anonymous" style="display:none"></audio>
-                    <audio id="snr32" src="SNR_experiment/32dB.wav" muted autoplay loop preload="auto" playsinline crossorigin="anonymous" style="display:none"></audio>
-                    <audio id="snr36" src="SNR_experiment/36dB.wav" muted autoplay loop preload="auto" playsinline crossorigin="anonymous" style="display:none"></audio>
-                    <audio id="snr40" src="SNR_experiment/40dB.wav" muted autoplay loop preload="auto" playsinline crossorigin="anonymous" style="display:none"></audio>
-                    <audio id="snr44" src="SNR_experiment/44dB.wav" muted autoplay loop preload="auto" playsinline crossorigin="anonymous" style="display:none"></audio>
                 </div>
             </div>
 

@@ -565,10 +565,34 @@
             border: 1px solid #ececec;
         }
 
-        .signal-canvas {
-            width: 100%;
+        .wave-scroller {
+            position: absolute;
+            inset: 0;
+            width: 200%;
             height: 100%;
-            display: block;
+            display: flex;
+            animation: waveScroll 6s linear infinite;
+        }
+
+        @keyframes waveScroll {
+            from { transform: translateX(0); }
+            to   { transform: translateX(-50%); }
+        }
+
+        .signal-svg {
+            width: 50%;
+            height: 100%;
+        }
+
+        .signal-grid-line {
+            stroke: #eee;
+            stroke-width: 1;
+        }
+
+        .signal-path {
+            fill: none;
+            stroke: #2b6cb0;
+            stroke-width: 2;
         }
 
         .signal-meta {
@@ -934,22 +958,46 @@
                 0:  { thd: -29.18, f: 422.0 }
             };
 
-            const canvas = document.getElementById('signalCanvas');
+            const scroller = document.getElementById('waveScroller');
+            const svg1 = document.getElementById('waveSvg1');
+            const svg2 = document.getElementById('waveSvg2');
+            const path1 = document.getElementById('wavePath1');
+            const path2 = document.getElementById('wavePath2');
+            const group1 = document.getElementById('waveGroup1');
+            const group2 = document.getElementById('waveGroup2');
             const metaEl = document.getElementById('signalMeta');
-            const ctx = canvas.getContext('2d');
 
-            let devicePixelRatioCached = window.devicePixelRatio || 1;
-            function resizeCanvas() {
-                const rect = canvas.getBoundingClientRect();
-                const dpr = window.devicePixelRatio || 1;
-                if (canvas.width !== Math.floor(rect.width * dpr) || canvas.height !== Math.floor(rect.height * dpr)) {
-                    canvas.width = Math.floor(rect.width * dpr);
-                    canvas.height = Math.floor(rect.height * dpr);
+            function setSvgViewBox() {
+                const rect = scroller.parentElement.getBoundingClientRect();
+                const w = Math.max(300, Math.floor(rect.width / 2));
+                const h = Math.max(120, Math.floor(rect.height));
+                svg1.setAttribute('viewBox', `0 0 ${w} ${h}`);
+                svg2.setAttribute('viewBox', `0 0 ${w} ${h}`);
+                svg1.dataset.w = w; svg1.dataset.h = h;
+                svg2.dataset.w = w; svg2.dataset.h = h;
+                // grid lines
+                [group1, group2].forEach(g => { while (g.firstChild) g.removeChild(g.firstChild); });
+                for (let x = 0; x < w; x += 40) {
+                    const line1 = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                    line1.setAttribute('x1', String(x)); line1.setAttribute('y1', '0');
+                    line1.setAttribute('x2', String(x)); line1.setAttribute('y2', String(h));
+                    line1.setAttribute('class', 'signal-grid-line');
+                    group1.appendChild(line1);
+                    const line2 = line1.cloneNode(true);
+                    group2.appendChild(line2);
                 }
-                ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+                for (let y = 0; y < h; y += 32) {
+                    const line1 = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                    line1.setAttribute('x1', '0'); line1.setAttribute('y1', String(y));
+                    line1.setAttribute('x2', String(w)); line1.setAttribute('y2', String(y));
+                    line1.setAttribute('class', 'signal-grid-line');
+                    group1.appendChild(line1);
+                    const line2 = line1.cloneNode(true);
+                    group2.appendChild(line2);
+                }
             }
-            resizeCanvas();
-            window.addEventListener('resize', resizeCanvas);
+            setSvgViewBox();
+            window.addEventListener('resize', setSvgViewBox);
 
             // Numeric-sample approach (robust on GitHub Pages): load NPY/JSON per SNR level
             const dBLevels = [0,4,8,12,16,20,24,28,32,36,40,44];
@@ -1086,74 +1134,55 @@
                 metaEl.textContent = `SNR: ${currentDbTarget} dB | THD: ${info.thd} | f = ${info.f} Hz`;
             }
 
-            // Streaming renderer: draws entire width each frame from numeric buffers
-            function render(now) {
-                const dt = Math.min(0.05, (now - lastTimestamp) / 1000);
-                lastTimestamp = now;
-
-                const rect = canvas.getBoundingClientRect();
-                const width = Math.floor(rect.width);
-                const height = Math.floor(rect.height);
-
-                // Background
-                ctx.clearRect(0, 0, width, height);
-                ctx.save();
-                ctx.strokeStyle = '#eee';
-                ctx.lineWidth = 1;
-                for (let x = 0; x < width; x += 40) {
-                    ctx.beginPath();
-                    ctx.moveTo(x, 0);
-                    ctx.lineTo(x, height);
-                    ctx.stroke();
-                }
-                for (let y = 0; y < height; y += 32) {
-                    ctx.beginPath();
-                    ctx.moveTo(0, y);
-                    ctx.lineTo(width, y);
-                    ctx.stroke();
-                }
-                ctx.restore();
-
-                const baseline = height / 2;
-                const scaleY = height * 0.45;
-
+            // SVG path rendering using a horizontally scrolling container
+            function drawWave() {
+                const w = Number(svg1.dataset.w || 480);
+                const h = Number(svg1.dataset.h || 160);
+                const baseline = h / 2;
+                const scaleY = h * 0.45;
                 const buf = buffers[currentDbTarget];
                 const sr = sampleRates[currentDbTarget] || 44100;
+                const samplesPerPixel = sr / 120; // 120 px/sec
+                const head = playheads[currentDbTarget] || 0;
 
-                // Motion speed: approx 120 px/sec
-                const pixelsPerSecond = 120;
-                const samplesPerPixel = sr / pixelsPerSecond;
-                const stepSamples = samplesPerPixel * (dt * 60 * 2);
-                if (playheads[currentDbTarget] == null) playheads[currentDbTarget] = 0;
-                let head = playheads[currentDbTarget];
-
-                ctx.beginPath();
-                ctx.lineWidth = 2;
-                ctx.strokeStyle = '#2b6cb0';
-                for (let x = 0; x < width; x++) {
-                    let s;
-                    if (buf && buf.length > 0) {
-                        const idx = head + x * samplesPerPixel;
-                        const i0 = Math.floor(idx) % buf.length;
-                        const i1 = (i0 + 1) % buf.length;
-                        const frac = idx - Math.floor(idx);
-                        s = buf[i0] * (1 - frac) + buf[i1] * frac;
-                    } else {
-                        s = (Math.random() - 0.5) * 0.6; // fallback if not yet loaded
+                function buildPath(startIndex) {
+                    let d = '';
+                    for (let x = 0; x < w; x++) {
+                        let s;
+                        if (buf && buf.length > 0) {
+                            const idx = startIndex + x * samplesPerPixel;
+                            const i0 = Math.floor(idx) % buf.length;
+                            const i1 = (i0 + 1) % buf.length;
+                            const frac = idx - Math.floor(idx);
+                            s = buf[i0] * (1 - frac) + buf[i1] * frac;
+                        } else {
+                            s = (Math.random() - 0.5) * 0.6;
+                        }
+                        const y = baseline - s * scaleY;
+                        d += (x === 0 ? `M ${x} ${y}` : ` L ${x} ${y}`);
                     }
-                    const y = baseline - s * scaleY;
-                    if (x === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+                    return d;
                 }
-                ctx.stroke();
 
-                head = (head + stepSamples) % (buf ? buf.length : 1e9);
-                playheads[currentDbTarget] = head;
+                // Build two halves for seamless loop
+                path1.setAttribute('d', buildPath(head));
+                path2.setAttribute('d', buildPath(head + w * samplesPerPixel));
+            }
 
-                rAF = requestAnimationFrame(render);
+            function tick(now) {
+                const sr = sampleRates[currentDbTarget] || 44100;
+                const samplesPerPixel = sr / 120; // 120 px/sec
+                if (playheads[currentDbTarget] == null) playheads[currentDbTarget] = 0;
+                playheads[currentDbTarget] = (playheads[currentDbTarget] + samplesPerPixel * (1/60) * 2) % 1e9;
+                drawWave();
+                requestAnimationFrame(tick);
             }
 
             updateSignalTarget(0);
-            bootstrapSignals().then(() => { rAF = requestAnimationFrame(render); });
+            bootstrapSignals().then(() => {
+                drawWave();
+                requestAnimationFrame(tick);
+            });
         });
     </script>
 </head>
@@ -1297,7 +1326,16 @@
                     <div class="signal-title">Recovered signal from vibrations</div>
                     <div class="signal-card">
                         <div class="signal-canvas-wrap">
-                            <canvas id="signalCanvas" class="signal-canvas"></canvas>
+                            <div class="wave-scroller" id="waveScroller">
+                                <svg class="signal-svg" id="waveSvg1" preserveAspectRatio="none">
+                                    <g id="waveGroup1"></g>
+                                    <path id="wavePath1" class="signal-path" d="" />
+                                </svg>
+                                <svg class="signal-svg" id="waveSvg2" preserveAspectRatio="none">
+                                    <g id="waveGroup2"></g>
+                                    <path id="wavePath2" class="signal-path" d="" />
+                                </svg>
+                            </div>
                         </div>
                         <div class="signal-meta" id="signalMeta">SNR: 0 dB | THD: -29.18 | f = 422.0 Hz</div>
                     </div>

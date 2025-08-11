@@ -735,6 +735,11 @@
             const MAX_ANGLE = 120;  // degrees
             const NUM_LEVELS = 12;  // 0..11
             const STEP_DEG = (MAX_ANGLE - MIN_ANGLE) / (NUM_LEVELS - 1);
+            
+            // --- Signal state declared early to avoid TDZ when setLevel -> updateSignalTarget uses it ---
+            let currentDbTarget = 0; // 0..44 in steps of 4
+            let lastTimestamp = performance.now();
+            let rAF;
 
             // Generate ticks on a not-full circle arc
             for (let i = 0; i < NUM_LEVELS; i++) {
@@ -1119,10 +1124,10 @@
                 });
             }
 
-            // Signal state
-            let currentDbTarget = 0; // 0..44 in steps of 4
-            let lastTimestamp = performance.now();
-            let rAF;
+            // Signal state (declared earlier already). Ensure defaults.
+            currentDbTarget = currentDbTarget || 0;
+            lastTimestamp = performance.now();
+            // rAF already declared earlier
 
             function updateSignalTarget(db) {
                 if (typeof db !== 'number') db = 0;

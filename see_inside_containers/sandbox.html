@@ -392,6 +392,191 @@
             transform: translateY(-2px);
         }
         
+        /* Rotary volume control */
+        .controller-row {
+            display: flex;
+            gap: 28px;
+            align-items: flex-start;
+        }
+
+        .volume-control {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+            margin-left: 48px; /* move right to allow pulling to OFF */
+            user-select: none;
+        }
+
+        .rotary-wrapper {
+            position: relative;
+            width: 120px;
+            height: 120px;
+            cursor: default;
+        }
+
+        .rotary-knob {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 92px;
+            height: 92px;
+            transform: translate(-50%, -50%); /* keep lighting static */
+            border-radius: 50%;
+            background: radial-gradient(65% 65% at 30% 30%, #1a1a1a 0%, #0f0f0f 60%, #000 100%);
+            box-shadow: inset 0 2px 6px rgba(255,255,255,0.06), inset 0 -8px 16px rgba(0,0,0,0.8), 0 6px 18px rgba(0,0,0,0.3);
+            border: 1px solid #0c0c0c;
+        }
+
+        .rotary-wrapper:hover { cursor: pointer; }
+        .rotary-wrapper.dragging { cursor: grabbing; }
+        .rotary-wrapper:active { cursor: grabbing; }
+
+        .rotary-knob::before {
+            content: "";
+            position: absolute;
+            inset: 10px;
+            border-radius: 50%;
+            background: radial-gradient(60% 60% at 30% 30%, #222 0%, #111 60%, #0a0a0a 100%);
+        }
+
+        .rotary-angle {
+            position: absolute;
+            inset: 0;
+        }
+
+        .rotary-indicator {
+            position: absolute;
+            top: 14px;
+            left: 50%;
+            width: 3px;
+            height: 24px;
+            transform: translateX(-50%);
+            background: linear-gradient(180deg, #e8e8e8 0%, #cfcfcf 100%);
+            border-radius: 2px;
+            box-shadow: 0 0 2px rgba(255,255,255,0.2);
+        }
+
+        .ticks {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 120px;
+            height: 120px;
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+        }
+
+        .tick {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 3px;
+            height: 12px;
+            background: #d9d9d9; /* light gray for not reached */
+            border-radius: 2px;
+            opacity: 0.9;
+            box-shadow: 0 0 0.5px rgba(255,255,255,0.15);
+        }
+
+        .tick.active { 
+            background: #5e5e5e; /* darker gray for reached */
+        }
+
+        .volume-readout {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            align-items: center;
+        }
+
+        .volume-readout .title {
+            font-size: 0.95em;
+            font-weight: 600;
+            margin: 0;
+            color: #333;
+            text-align: center;
+        }
+
+        .volume-label {
+            display: inline-block;
+            min-width: 44px;
+            padding: 2px 8px;
+            border-radius: 12px;
+            background: #111;
+            color: #f0f0f0;
+            font-variant-numeric: tabular-nums;
+            text-align: center;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            outline: none;
+        }
+
+        .volume-label:hover { filter: brightness(1.08); }
+        .volume-label:focus { box-shadow: 0 0 0 2px rgba(33,150,243,0.35); }
+
+        /* Interactive hint: hand-grip icon following an arc, hidden on interaction */
+        .hint-hand {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 34px;
+            height: 34px;
+            opacity: 0.0; /* start hidden; fade in for demo */
+            transition: opacity 300ms ease;
+            pointer-events: none;
+            transform: translate(-50%, -50%);
+            filter: drop-shadow(0 2px 2px rgba(0,0,0,0.2));
+        }
+
+        .hint-hand.visible { opacity: 0.95; }
+
+        /* Signal panel */
+        .signal-panel {
+            flex: 1 1 480px;
+            min-width: 380px;
+            max-width: 620px;
+        }
+
+        .signal-title {
+            font-size: 0.95em;
+            font-weight: 600;
+            margin: 0 0 6px;
+            color: #333;
+        }
+
+        .signal-card {
+            background: #ffffff;
+            border: 1px solid #e5e5e5;
+            border-radius: 10px;
+            padding: 12px 12px 8px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.06);
+        }
+
+        .signal-canvas-wrap {
+            position: relative;
+            width: 100%;
+            height: 160px;
+            border-radius: 8px;
+            overflow: hidden;
+            background: linear-gradient(180deg, #fafafa 0%, #f7f7f7 100%);
+            border: 1px solid #ececec;
+        }
+
+        .signal-canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        .signal-meta {
+            margin-top: 8px;
+            font-size: 0.9em;
+            color: #555;
+        }
+        
         @media (max-width: 768px) {
             .container {
                 padding: 20px 15px;
@@ -510,6 +695,381 @@
                 document.body.removeChild(textArea);
             }
         }
+
+        // Rotary knob logic
+        document.addEventListener('DOMContentLoaded', function() {
+            const wrapper = document.getElementById('volumeKnob');
+            if (!wrapper) return;
+
+            const knob = wrapper.querySelector('.rotary-knob');
+            const angleLayer = knob.querySelector('.rotary-angle');
+            const ticksContainer = wrapper.querySelector('.ticks');
+            const labelEl = document.getElementById('volumeLabel');
+            const hintHand = document.getElementById('hintHand');
+
+            const MIN_ANGLE = -120; // degrees
+            const MAX_ANGLE = 120;  // degrees
+            const NUM_LEVELS = 12;  // 0..11
+            const STEP_DEG = (MAX_ANGLE - MIN_ANGLE) / (NUM_LEVELS - 1);
+
+            // Generate ticks on a not-full circle arc
+            for (let i = 0; i < NUM_LEVELS; i++) {
+                const angle = MIN_ANGLE + i * STEP_DEG;
+                const tick = document.createElement('div');
+                tick.className = 'tick';
+                tick.style.transform = `translate(-50%, -50%) rotate(${angle}deg) translate(0, -56px)`;
+                ticksContainer.appendChild(tick);
+            }
+
+            function setLevel(level) {
+                const clamped = Math.max(0, Math.min(NUM_LEVELS - 1, level));
+                const angle = MIN_ANGLE + clamped * STEP_DEG;
+                // Rotate only the indicator layer; keep knob lighting static
+                angleLayer.style.transform = `rotate(${angle}deg)`;
+
+                // Update ticks highlight
+                const ticks = ticksContainer.querySelectorAll('.tick');
+                ticks.forEach((t, idx) => {
+                    if (idx <= clamped) t.classList.add('active');
+                    else t.classList.remove('active');
+                });
+
+                // Update label: OFF, 4 dB, 8 dB, ...
+                const db = clamped * 4;
+                labelEl.textContent = clamped === 0 ? 'OFF' : `${db} dB`;
+
+                // Set global audio volume
+                const volume = clamped / (NUM_LEVELS - 1);
+                document.querySelectorAll('audio').forEach(a => {
+                    try { a.volume = volume; } catch(e) {}
+                });
+
+                // a11y
+                wrapper.setAttribute('aria-valuenow', String(clamped));
+                wrapper.setAttribute('aria-valuetext', clamped === 0 ? 'OFF' : `${db} dB`);
+
+                wrapper.dataset.level = String(clamped);
+
+                // Update signal rendering state
+                updateSignalTarget(db);
+            }
+
+            function angleToLevel(angleDeg) {
+                const clampedAngle = Math.max(MIN_ANGLE, Math.min(MAX_ANGLE, angleDeg));
+                const raw = (clampedAngle - MIN_ANGLE) / STEP_DEG;
+                // Make the first bin (OFF) slightly larger for easier access
+                // If we're within half-a-step of MIN_ANGLE, snap to 0
+                if (clampedAngle <= MIN_ANGLE + STEP_DEG * 0.6) return 0;
+                return Math.round(raw);
+            }
+
+            function clientToAngle(clientX, clientY) {
+                const rect = wrapper.getBoundingClientRect();
+                const cx = rect.left + rect.width / 2;
+                const cy = rect.top + rect.height / 2;
+                const dx = clientX - cx;
+                const dy = clientY - cy;
+                // Base angle: 0 at +X; shift so 12 o'clock is 0 deg
+                let deg = Math.atan2(dy, dx) * 180 / Math.PI + 90;
+                // Normalize to [-180, 180] so negative angles are reachable (left side)
+                if (deg > 180) deg -= 360;
+                if (deg < -180) deg += 360;
+                return deg;
+            }
+
+            let dragging = false;
+            let pointerDownInside = false;
+
+            function onPointerDown(e) {
+                dragging = true;
+                pointerDownInside = true;
+                wrapper.classList.add('dragging');
+                wrapper.setPointerCapture?.(e.pointerId);
+                const angle = clientToAngle(e.clientX, e.clientY);
+                // If user starts at far-left above OFF threshold, snap to OFF
+                const tentative = angleToLevel(angle);
+                if (tentative === 1 && angle < MIN_ANGLE + STEP_DEG * 0.3) {
+                    setLevel(0);
+                } else {
+                    setLevel(tentative);
+                }
+                e.preventDefault();
+                // Hide hint once interacted
+                hintHand?.classList.remove('visible');
+            }
+
+            function onPointerMove(e) {
+                if (!dragging) return;
+                const angle = clientToAngle(e.clientX, e.clientY);
+                setLevel(angleToLevel(angle));
+            }
+
+            function onPointerUp(e) {
+                dragging = false;
+                pointerDownInside = false;
+                wrapper.classList.remove('dragging');
+                wrapper.releasePointerCapture?.(e.pointerId);
+            }
+
+            // Click/drag support
+            wrapper.addEventListener('pointerdown', onPointerDown);
+            window.addEventListener('pointermove', onPointerMove);
+            window.addEventListener('pointerup', onPointerUp);
+
+            // Keyboard support
+            wrapper.addEventListener('keydown', (e) => {
+                const current = Number(wrapper.dataset.level || '0');
+                if (e.key === 'ArrowRight' || e.key === 'ArrowUp') {
+                    setLevel(current + 1);
+                    e.preventDefault();
+                } else if (e.key === 'ArrowLeft' || e.key === 'ArrowDown') {
+                    setLevel(current - 1);
+                    e.preventDefault();
+                } else if (e.key.toLowerCase() === 'o') { // quick OFF
+                    setLevel(0);
+                    e.preventDefault();
+                }
+                hintHand?.classList.remove('visible');
+            });
+
+            // Toggle OFF/4 dB on counter click to avoid confusion when clicking OFF
+            labelEl.addEventListener('click', () => {
+                const current = Number(wrapper.dataset.level || '0');
+                if (current === 0) setLevel(1); // OFF -> 4 dB
+                else setLevel(0);               // any -> OFF
+                hintHand?.classList.remove('visible');
+            });
+
+            // Initialize OFF and ensure label reads OFF
+            setLevel(0);
+
+            // Show a short animated hint: move along the arc continuously (fwd -> back -> fwd -> back)
+            let hintRunning = false;
+            let hintRafId = 0;
+            function animateHint() {
+                if (!hintHand) return;
+                if (hintRunning) return; // prevent duplicate runs
+                hintRunning = true;
+                const R1 = 78; // slightly bigger radius
+                const startDeg = MIN_ANGLE + STEP_DEG * 2;
+                const endDeg = startDeg + STEP_DEG * 3;
+                const baseDur = 1400; // original
+                const totalDur = baseDur * 4; // forward -> back -> forward -> back
+
+                // Place at exact start BEFORE showing to avoid popping at end
+                (function positionAt(deg){
+                    const rad0 = (deg - 90) * Math.PI / 180;
+                    const x0 = Math.cos(rad0) * R1;
+                    const y0 = Math.sin(rad0) * R1;
+                    hintHand.style.transform = `translate(-50%, -50%) translate(${x0}px, ${y0}px)`;
+                })(startDeg);
+
+                hintHand.classList.add('visible');
+                const startTime = performance.now();
+
+                function easeOutCubic(t) { return 1 - Math.pow(1 - t, 3); }
+
+                function frame(now) {
+                    // Clamp slightly below 1 to keep final segment math in-range
+                    const p = Math.min(0.999, (now - startTime) / totalDur);
+                    const segFloat = p * 4; // 4 segments
+                    const seg = Math.floor(segFloat);
+                    const localT = segFloat - seg; // 0..1 within segment
+                    const eased = easeOutCubic(localT); // slow down at the end
+
+                    let deg;
+                    if (seg === 0) {
+                        // forward
+                        deg = startDeg + (endDeg - startDeg) * eased;
+                    } else if (seg === 1) {
+                        // back
+                        deg = endDeg + (startDeg - endDeg) * eased;
+                    } else if (seg === 2) {
+                        // forward again
+                        deg = startDeg + (endDeg - startDeg) * eased;
+                    } else {
+                        // back to start at end
+                        deg = endDeg + (startDeg - endDeg) * eased;
+                    }
+
+                    const rad = (deg - 90) * Math.PI / 180;
+                    const x = Math.cos(rad) * R1;
+                    const y = Math.sin(rad) * R1;
+                    hintHand.style.transform = `translate(-50%, -50%) translate(${x}px, ${y}px)`;
+
+                    if (p < 0.999 && hintRunning) {
+                        hintRafId = requestAnimationFrame(frame);
+                    } else {
+                        hintRunning = false;
+                        // Snap to the true final position (startDeg) and fade without moving
+                        (function positionAt(deg){
+                            const rad0 = (deg - 90) * Math.PI / 180;
+                            const x0 = Math.cos(rad0) * R1;
+                            const y0 = Math.sin(rad0) * R1;
+                            hintHand.style.transform = `translate(-50%, -50%) translate(${x0}px, ${y0}px)`;
+                        })(startDeg);
+                        setTimeout(() => hintHand.classList.remove('visible'), 500);
+                    }
+                }
+
+                hintRafId = requestAnimationFrame(frame);
+            }
+
+            // Trigger the hint shortly after load
+            setTimeout(animateHint, 900);
+
+            // ---------------- Signal rendering -----------------
+            const thdMap = {
+                44: { thd: 25.85, f: 422.0 },
+                40: { thd: 23.04, f: 422.0 },
+                36: { thd: 19.27, f: 422.0 },
+                32: { thd: 15.5,  f: 422.0 },
+                28: { thd: 11.85, f: 422.0 },
+                24: { thd: 8.203, f: 422.0 },
+                20: { thd: 3.125, f: 422.0 },
+                16: { thd: -1.554, f: 422.0 },
+                12: { thd: -5.517, f: 422.0 },
+                8:  { thd: -6.988, f: 422.0 },
+                4:  { thd: -14.11, f: 422.0 },
+                0:  { thd: -29.18, f: 422.0 }
+            };
+
+            const canvas = document.getElementById('signalCanvas');
+            const metaEl = document.getElementById('signalMeta');
+            const ctx = canvas.getContext('2d');
+
+            let devicePixelRatioCached = window.devicePixelRatio || 1;
+            function resizeCanvas() {
+                const rect = canvas.getBoundingClientRect();
+                const dpr = window.devicePixelRatio || 1;
+                if (canvas.width !== Math.floor(rect.width * dpr) || canvas.height !== Math.floor(rect.height * dpr)) {
+                    canvas.width = Math.floor(rect.width * dpr);
+                    canvas.height = Math.floor(rect.height * dpr);
+                }
+                ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+            }
+            resizeCanvas();
+            window.addEventListener('resize', resizeCanvas);
+
+            // Preload WAVs and keep decoded PCM in memory
+            const dBLevels = [0,4,8,12,16,20,24,28,32,36,40,44];
+            const buffers = {};           // db -> Float32Array (mono)
+            const sampleRates = {};       // db -> number
+            const playheads = {};         // db -> float index (advances continuously)
+            let audioCtx;
+
+            async function loadAllSignals() {
+                try {
+                    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                } catch(e) {
+                    console.warn('AudioContext init failed; falling back to synthetic wave', e);
+                    return;
+                }
+                await Promise.all(dBLevels.map(async (db) => {
+                    const url = `SNR_experiment/${db}dB.wav`;
+                    try {
+                        const res = await fetch(url);
+                        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                        const arr = await res.arrayBuffer();
+                        const audioBuf = await audioCtx.decodeAudioData(arr);
+                        const chan = audioBuf.getChannelData(0);
+                        // Clone into standalone Float32Array to avoid detachment surprises
+                        buffers[db] = new Float32Array(chan);
+                        sampleRates[db] = audioBuf.sampleRate;
+                        playheads[db] = 0;
+                    } catch (err) {
+                        console.warn('Failed loading', url, err);
+                    }
+                }));
+            }
+
+            // Signal state
+            let currentDbTarget = 0; // 0..44 in steps of 4
+            let lastTimestamp = performance.now();
+            let rAF;
+
+            function updateSignalTarget(db) {
+                if (typeof db !== 'number') db = 0;
+                if (db < 0) db = 0;
+                if (db > 44) db = 44;
+                // Snap to nearest multiple of 4
+                currentDbTarget = Math.round(db / 4) * 4;
+                const info = thdMap[currentDbTarget] || thdMap[0];
+                metaEl.textContent = `SNR: ${currentDbTarget} dB | THD: ${info.thd} | f = ${info.f} Hz`;
+            }
+
+            // Streaming renderer: scrolls content and draws new samples based on active buffer
+            function render(now) {
+                const dt = Math.min(0.05, (now - lastTimestamp) / 1000);
+                lastTimestamp = now;
+
+                const rect = canvas.getBoundingClientRect();
+                const width = Math.floor(rect.width);
+                const height = Math.floor(rect.height);
+
+                // Scroll existing image to the left by N pixels
+                const scrollPx = 2; // speed
+                ctx.drawImage(canvas, -scrollPx, 0);
+                // Clear the right strip
+                ctx.clearRect(width - scrollPx, 0, scrollPx, height);
+
+                // Light grid on right strip for continuity
+                ctx.save();
+                ctx.strokeStyle = '#eee';
+                ctx.lineWidth = 1;
+                for (let y = 0; y < height; y += 32) {
+                    ctx.beginPath();
+                    ctx.moveTo(width - scrollPx, y);
+                    ctx.lineTo(width, y);
+                    ctx.stroke();
+                }
+                ctx.restore();
+
+                const baseline = height / 2;
+                const scaleY = height * 0.45;
+                const buf = buffers[currentDbTarget];
+                const sr = sampleRates[currentDbTarget] || 44100;
+
+                // Determine how many samples to advance for this frame so visual speed is stable
+                const pixelsPerSecond = 120; // 2 px * 60 fps
+                const samplesPerPixel = sr / pixelsPerSecond;
+                const stepSamples = samplesPerPixel * scrollPx;
+
+                // Keep previous y for continuity at the boundary
+                if (typeof render.prevY !== 'number') render.prevY = baseline;
+                let prevY = render.prevY;
+
+                // Compute new sample at right edge
+                let sample = 0;
+                if (buf && buf.length > 0) {
+                    let head = playheads[currentDbTarget] || 0;
+                    const idx = Math.floor(head) % buf.length;
+                    sample = buf[idx];
+                    head = (head + stepSamples) % buf.length;
+                    playheads[currentDbTarget] = head;
+                } else {
+                    // Fallback to noise if buffer missing
+                    const noiseLevel = Math.max(0, 1 - currentDbTarget / 44);
+                    sample = (Math.random() * 2 - 1) * (0.5 + 0.5 * noiseLevel);
+                }
+                const y = baseline - sample * scaleY;
+
+                // Draw line in the rightmost strip
+                ctx.beginPath();
+                ctx.lineWidth = 2;
+                ctx.strokeStyle = '#2b6cb0';
+                ctx.moveTo(width - scrollPx, prevY);
+                ctx.lineTo(width - 1, y);
+                ctx.stroke();
+
+                render.prevY = y;
+
+                rAF = requestAnimationFrame(render);
+            }
+
+            updateSignalTarget(0);
+            loadAllSignals().then(() => { rAF = requestAnimationFrame(render); });
+        });
     </script>
 </head>
     <body>
@@ -627,7 +1187,38 @@
 
 
         <div class="section">
-            
+            <div class="controller-row">
+                <div class="volume-control" aria-hidden="false">
+                    <div class="rotary-wrapper" id="volumeKnob" role="slider" aria-label="Speaker volume" aria-valuemin="0" aria-valuemax="11" aria-valuenow="0" tabindex="0">
+                        <div class="ticks"></div>
+                        <div class="rotary-knob">
+                            <div class="rotary-angle" style="transform: rotate(-120deg);">
+                                <div class="rotary-indicator"></div>
+                            </div>
+                        </div>
+                        <!-- hint hand icon -->
+                        <svg class="hint-hand" id="hintHand" viewBox="0 0 64 64" aria-hidden="true">
+                            <path fill="#ffffff" stroke="#bbb" d="M20 30v-8a4 4 0 0 1 8 0v8h2v-10a4 4 0 0 1 8 0v10h2v-8a4 4 0 0 1 8 0v16c0 7-5 12-12 12h-6c-7 0-12-5-12-12v-8z"/>
+                            <circle cx="26" cy="50" r="2" fill="#bbb"/>
+                        </svg>
+                    </div>
+                    <div class="volume-readout">
+                        <div class="title">Speaker Volume</div>
+                        <button class="volume-label" id="volumeLabel" type="button" aria-live="polite">OFF</button>
+                    </div>
+                </div>
+
+                <div class="signal-panel">
+                    <div class="signal-title">Recovered signal from vibrations</div>
+                    <div class="signal-card">
+                        <div class="signal-canvas-wrap">
+                            <canvas id="signalCanvas" class="signal-canvas"></canvas>
+                        </div>
+                        <div class="signal-meta" id="signalMeta">SNR: 0 dB | THD: -29.18 | f = 422.0 Hz</div>
+                    </div>
+                </div>
+            </div>
+
             <h1 class="subtitle">Can you hear the contents of a Coke bottle?</h1>
             <p><b>TL;DR:</b> Yes, we can! (and by “we,” we mean a novel AI model). We accomplish this by sensing the tiny vibrations on the bottle’s surface and relating them to the bottle’s liquid level and type (i.e., Coke bottle, milk carton, etc.).</p>
 

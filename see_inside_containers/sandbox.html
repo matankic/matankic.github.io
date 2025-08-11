@@ -951,34 +951,86 @@
             resizeCanvas();
             window.addEventListener('resize', resizeCanvas);
 
-            // WebAudio approach using hidden <audio> tags + AnalyserNode
+            // Numeric-sample approach (robust on GitHub Pages): load NPY/JSON per SNR level
             const dBLevels = [0,4,8,12,16,20,24,28,32,36,40,44];
-            const audioEls = {};  // db -> HTMLAudioElement
-            const analysers = {}; // db -> AnalyserNode
-            let audioCtx;
-            let audioReady = false;
+            const buffers = {};     // db -> Float32Array (mono)
+            const sampleRates = {}; // db -> number
+            const playheads = {};   // db -> float index (advances continuously)
 
-            function initAudioGraph() {
-                if (audioCtx) return;
-                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                dBLevels.forEach(db => {
-                    const el = document.getElementById(`snr${db}`);
-                    if (!el) return;
-                    const src = audioCtx.createMediaElementSource(el);
-                    const analyser = audioCtx.createAnalyser();
-                    analyser.fftSize = 2048;
-                    src.connect(analyser);
-                    // not connecting to destination keeps it silent
-                    audioEls[db] = el;
-                    analysers[db] = analyser;
-                    el.muted = true;
-                    el.loop = true;
-                    // best-effort autoplay; some browsers require gesture
-                    el.play().catch(()=>{});
-                });
-                audioReady = true;
+            function parseNpy(arrayBuffer) {
+                const magic = new Uint8Array(arrayBuffer, 0, 6);
+                const magicStr = String.fromCharCode(...magic);
+                if (!magicStr.startsWith('\u0093NUMPY')) throw new Error('Not NPY');
+                const dv = new DataView(arrayBuffer);
+                const verMajor = dv.getUint8(6);
+                const verMinor = dv.getUint8(7);
+                const headerLen = verMajor === 1 ? dv.getUint16(8, true) : dv.getUint32(8, true);
+                const headerStart = verMajor === 1 ? 10 : 12;
+                const headerBytes = new Uint8Array(arrayBuffer, headerStart, headerLen);
+                const header = new TextDecoder('latin1').decode(headerBytes);
+                const descrMatch = header.match(/'descr':\s*'([^']+)'/);
+                const shapeMatch = header.match(/'shape':\s*\(([^\)]*)\)/);
+                if (!descrMatch || !shapeMatch) throw new Error('NPY header parse failed');
+                const descr = descrMatch[1];
+                const littleEndian = descr[0] === '<' || descr[0] === '|';
+                const type = descr.slice(1);
+                const shapeParts = shapeMatch[1].split(',').map(s => s.trim()).filter(Boolean);
+                const length = parseInt(shapeParts[0] || '0', 10);
+                const dataOffset = headerStart + headerLen;
+                let data;
+                if (type === 'f4') {
+                    data = new Float32Array(arrayBuffer, dataOffset, length);
+                } else if (type === 'f8') {
+                    data = new Float64Array(arrayBuffer, dataOffset, length);
+                } else {
+                    throw new Error('Unsupported dtype ' + type);
+                }
+                if (!littleEndian) {
+                    const bytes = new Uint8Array(arrayBuffer, dataOffset, data.byteLength);
+                    for (let i = 0; i < bytes.length; i += 4) {
+                        [bytes[i], bytes[i+3]] = [bytes[i+3], bytes[i]];
+                        [bytes[i+1], bytes[i+2]] = [bytes[i+2], bytes[i+1]];
+                    }
+                }
+                const out = new Float32Array(length);
+                for (let i = 0; i < length; i++) out[i] = data[i];
+                return { sampleRate: 44100, data: out };
             }
-            initAudioGraph();
+
+            async function loadSignal(db) {
+                // Try NPY first, then JSON as fallback
+                try {
+                    const res = await fetch(`SNR_experiment/${db}dB.npy`);
+                    if (res.ok) {
+                        const arr = await res.arrayBuffer();
+                        const { sampleRate, data } = parseNpy(arr);
+                        buffers[db] = data;
+                        sampleRates[db] = sampleRate;
+                        playheads[db] = 0;
+                        return;
+                    }
+                } catch {}
+                try {
+                    const res = await fetch(`SNR_experiment/${db}dB.json`);
+                    if (res.ok) {
+                        const j = await res.json();
+                        buffers[db] = new Float32Array(j.data);
+                        sampleRates[db] = j.sampleRate || 44100;
+                        playheads[db] = 0;
+                        return;
+                    }
+                } catch {}
+                // If neither exists, leave buffer undefined (renderer shows noise fallback)
+            }
+
+            async function bootstrapSignals() {
+                // Ensure 0 dB is ready for OFF
+                await loadSignal(0);
+                // Load others lazily
+                dBLevels.filter(v => v !== 0).forEach(db => {
+                    loadSignal(db).catch(() => {});
+                });
+            }
 
             // Signal state
             let currentDbTarget = 0; // 0..44 in steps of 4
@@ -995,7 +1047,7 @@
                 metaEl.textContent = `SNR: ${currentDbTarget} dB | THD: ${info.thd} | f = ${info.f} Hz`;
             }
 
-            // Streaming renderer: draws entire width from active analyser each frame
+            // Streaming renderer: draws entire width each frame from numeric buffers
             function render(now) {
                 const dt = Math.min(0.05, (now - lastTimestamp) / 1000);
                 lastTimestamp = now;
@@ -1026,37 +1078,43 @@
                 const baseline = height / 2;
                 const scaleY = height * 0.45;
 
-                // Ensure audio context is running; try to start current element
-                if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume().catch(()=>{});
-                const currentEl = document.getElementById(`snr${currentDbTarget}`);
-                if (currentEl && currentEl.paused) currentEl.play().catch(()=>{});
+                const buf = buffers[currentDbTarget];
+                const sr = sampleRates[currentDbTarget] || 44100;
 
-                const analyser = analysers[currentDbTarget];
-                const N = (analyser && analyser.fftSize) || 2048;
-                const timeData = new Float32Array(N);
-                if (analyser) analyser.getFloatTimeDomainData(timeData);
+                // Motion speed: approx 120 px/sec
+                const pixelsPerSecond = 120;
+                const samplesPerPixel = sr / pixelsPerSecond;
+                const stepSamples = samplesPerPixel * (dt * 60 * 2);
+                if (playheads[currentDbTarget] == null) playheads[currentDbTarget] = 0;
+                let head = playheads[currentDbTarget];
 
                 ctx.beginPath();
                 ctx.lineWidth = 2;
                 ctx.strokeStyle = '#2b6cb0';
                 for (let x = 0; x < width; x++) {
-                    let s = 0;
-                    if (analyser) {
-                        const i = Math.floor((x / width) * (N - 1));
-                        s = timeData[i];
+                    let s;
+                    if (buf && buf.length > 0) {
+                        const idx = head + x * samplesPerPixel;
+                        const i0 = Math.floor(idx) % buf.length;
+                        const i1 = (i0 + 1) % buf.length;
+                        const frac = idx - Math.floor(idx);
+                        s = buf[i0] * (1 - frac) + buf[i1] * frac;
                     } else {
-                        s = (Math.random() - 0.5) * 0.6; // fallback so panel isn't empty
+                        s = (Math.random() - 0.5) * 0.6; // fallback if not yet loaded
                     }
                     const y = baseline - s * scaleY;
                     if (x === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
                 }
                 ctx.stroke();
 
+                head = (head + stepSamples) % (buf ? buf.length : 1e9);
+                playheads[currentDbTarget] = head;
+
                 rAF = requestAnimationFrame(render);
             }
 
             updateSignalTarget(0);
-            rAF = requestAnimationFrame(render);
+            bootstrapSignals().then(() => { rAF = requestAnimationFrame(render); });
         });
     </script>
 </head>

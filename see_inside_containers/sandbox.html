@@ -951,113 +951,34 @@
             resizeCanvas();
             window.addEventListener('resize', resizeCanvas);
 
-            // Preload WAVs (no WebAudio). Minimal WAV parser for PCM16 or float32
+            // WebAudio approach using hidden <audio> tags + AnalyserNode
             const dBLevels = [0,4,8,12,16,20,24,28,32,36,40,44];
-            const buffers = {};     // db -> Float32Array (mono)
-            const sampleRates = {}; // db -> number
-            const playheads = {};   // db -> float index (advances continuously)
+            const audioEls = {};  // db -> HTMLAudioElement
+            const analysers = {}; // db -> AnalyserNode
+            let audioCtx;
+            let audioReady = false;
 
-            function parseWav(arrayBuffer) {
-                const dv = new DataView(arrayBuffer);
-                function readStr(o, n) {
-                    let s = '';
-                    for (let i = 0; i < n; i++) s += String.fromCharCode(dv.getUint8(o + i));
-                    return s;
-                }
-                if (readStr(0,4) !== 'RIFF' || readStr(8,4) !== 'WAVE') {
-                    throw new Error('Not a RIFF/WAVE file');
-                }
-                let offset = 12;
-                let fmt = null;
-                let dataOffset = 0;
-                let dataSize = 0;
-                while (offset + 8 <= dv.byteLength) {
-                    const id = readStr(offset, 4);
-                    const size = dv.getUint32(offset + 4, true);
-                    if (id === 'fmt ') {
-                        const audioFormat = dv.getUint16(offset + 8, true);
-                        const numChannels = dv.getUint16(offset + 10, true);
-                        const sampleRate = dv.getUint32(offset + 12, true);
-                        const bitsPerSample = dv.getUint16(offset + 22, true);
-                        fmt = { audioFormat, numChannels, sampleRate, bitsPerSample };
-                    } else if (id === 'data') {
-                        dataOffset = offset + 8;
-                        dataSize = size;
-                    }
-                    offset += 8 + size + (size % 2); // pad to even
-                }
-                if (!fmt || !dataOffset) throw new Error('Invalid WAV: missing fmt or data');
-
-                const { audioFormat, numChannels, sampleRate, bitsPerSample } = fmt;
-                const bytesPerSample = bitsPerSample / 8;
-                const totalSamples = Math.floor(dataSize / bytesPerSample / numChannels);
-                const out = new Float32Array(totalSamples);
-
-                let readIndex = dataOffset;
-                for (let i = 0; i < totalSamples; i++) {
-                    let sample = 0;
-                    for (let ch = 0; ch < numChannels; ch++) {
-                        if (audioFormat === 1) { // PCM
-                            if (bitsPerSample === 16) {
-                                const s = dv.getInt16(readIndex, true) / 32768;
-                                sample += s;
-                                readIndex += 2;
-                            } else if (bitsPerSample === 8) {
-                                const s = (dv.getUint8(readIndex) - 128) / 128;
-                                sample += s;
-                                readIndex += 1;
-                            } else if (bitsPerSample === 32) {
-                                const s = dv.getInt32(readIndex, true) / 2147483648;
-                                sample += s;
-                                readIndex += 4;
-                            } else {
-                                // Unsupported PCM depth; skip
-                                readIndex += bytesPerSample;
-                            }
-                        } else if (audioFormat === 3) { // IEEE float
-                            if (bitsPerSample === 32) {
-                                const s = dv.getFloat32(readIndex, true);
-                                sample += s;
-                                readIndex += 4;
-                            } else if (bitsPerSample === 64) {
-                                const s = dv.getFloat64(readIndex, true);
-                                sample += s;
-                                readIndex += 8;
-                            } else {
-                                readIndex += bytesPerSample;
-                            }
-                        } else {
-                            // Unknown format; advance
-                            readIndex += bytesPerSample;
-                        }
-                    }
-                    out[i] = sample / Math.max(1, numChannels);
-                }
-                return { sampleRate, data: out };
-            }
-
-            async function loadSignal(db) {
-                const url = `SNR_experiment/${db}dB.wav`;
-                const res = await fetch(url);
-                if (!res.ok) throw new Error(`HTTP ${res.status}`);
-                const arr = await res.arrayBuffer();
-                const { sampleRate, data } = parseWav(arr);
-                buffers[db] = data;
-                sampleRates[db] = sampleRate;
-                playheads[db] = 0;
-            }
-
-            async function bootstrapSignals() {
-                try {
-                    await loadSignal(0); // ensure OFF is immediately available
-                } catch (e) {
-                    console.warn('Failed to load 0dB.wav', e);
-                }
-                // Load the rest in background
-                dBLevels.filter(v => v !== 0).forEach(db => {
-                    loadSignal(db).catch(err => console.warn('Failed to load', db, err));
+            function initAudioGraph() {
+                if (audioCtx) return;
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                dBLevels.forEach(db => {
+                    const el = document.getElementById(`snr${db}`);
+                    if (!el) return;
+                    const src = audioCtx.createMediaElementSource(el);
+                    const analyser = audioCtx.createAnalyser();
+                    analyser.fftSize = 2048;
+                    src.connect(analyser);
+                    // not connecting to destination keeps it silent
+                    audioEls[db] = el;
+                    analysers[db] = analyser;
+                    el.muted = true;
+                    el.loop = true;
+                    // best-effort autoplay; some browsers require gesture
+                    el.play().catch(()=>{});
                 });
+                audioReady = true;
             }
+            initAudioGraph();
 
             // Signal state
             let currentDbTarget = 0; // 0..44 in steps of 4
@@ -1074,7 +995,7 @@
                 metaEl.textContent = `SNR: ${currentDbTarget} dB | THD: ${info.thd} | f = ${info.f} Hz`;
             }
 
-            // Streaming renderer: draws entire width each frame from moving playhead
+            // Streaming renderer: draws entire width from active analyser each frame
             function render(now) {
                 const dt = Math.min(0.05, (now - lastTimestamp) / 1000);
                 lastTimestamp = now;
@@ -1104,49 +1025,38 @@
 
                 const baseline = height / 2;
                 const scaleY = height * 0.45;
-                const buf = buffers[currentDbTarget];
-                const sr = sampleRates[currentDbTarget] || 44100;
 
-                const pixelsPerSecond = 120;
-                const samplesPerPixel = sr / pixelsPerSecond;
-                const stepSamples = samplesPerPixel * (dt * 60 * 2); // advance ~2px per 16ms frame
+                // Ensure audio context is running; try to start current element
+                if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume().catch(()=>{});
+                const currentEl = document.getElementById(`snr${currentDbTarget}`);
+                if (currentEl && currentEl.paused) currentEl.play().catch(()=>{});
 
-                // Seed playhead
-                if (playheads[currentDbTarget] == null) playheads[currentDbTarget] = 0;
-                let head = playheads[currentDbTarget];
+                const analyser = analysers[currentDbTarget];
+                const N = (analyser && analyser.fftSize) || 2048;
+                const timeData = new Float32Array(N);
+                if (analyser) analyser.getFloatTimeDomainData(timeData);
 
                 ctx.beginPath();
                 ctx.lineWidth = 2;
                 ctx.strokeStyle = '#2b6cb0';
-
-                function sampleAt(index) {
-                    if (!buf || buf.length === 0) {
-                        const noiseLevel = Math.max(0, 1 - currentDbTarget / 44);
-                        return (Math.random() * 2 - 1) * (0.5 + 0.5 * noiseLevel);
-                    }
-                    // Linear interpolation for smoother rendering
-                    const i0 = Math.floor(index) % buf.length;
-                    const i1 = (i0 + 1) % buf.length;
-                    const frac = index - Math.floor(index);
-                    return buf[i0] * (1 - frac) + buf[i1] * frac;
-                }
-
                 for (let x = 0; x < width; x++) {
-                    const s = sampleAt(head + x * samplesPerPixel);
+                    let s = 0;
+                    if (analyser) {
+                        const i = Math.floor((x / width) * (N - 1));
+                        s = timeData[i];
+                    } else {
+                        s = (Math.random() - 0.5) * 0.6; // fallback so panel isn't empty
+                    }
                     const y = baseline - s * scaleY;
                     if (x === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
                 }
                 ctx.stroke();
 
-                // Advance playhead for selected SNR
-                head = (head + stepSamples) % (buf ? buf.length : 1e9);
-                playheads[currentDbTarget] = head;
-
                 rAF = requestAnimationFrame(render);
             }
 
             updateSignalTarget(0);
-            bootstrapSignals().then(() => { rAF = requestAnimationFrame(render); });
+            rAF = requestAnimationFrame(render);
         });
     </script>
 </head>
@@ -1294,6 +1204,19 @@
                         </div>
                         <div class="signal-meta" id="signalMeta">SNR: 0 dB | THD: -29.18 | f = 422.0 Hz</div>
                     </div>
+                    <!-- hidden audio sources for SNR experiment -->
+                    <audio id="snr0"  src="SNR_experiment/0dB.wav"  muted autoplay loop preload="auto" playsinline crossorigin="anonymous" style="display:none"></audio>
+                    <audio id="snr4"  src="SNR_experiment/4dB.wav"  muted autoplay loop preload="auto" playsinline crossorigin="anonymous" style="display:none"></audio>
+                    <audio id="snr8"  src="SNR_experiment/8dB.wav"  muted autoplay loop preload="auto" playsinline crossorigin="anonymous" style="display:none"></audio>
+                    <audio id="snr12" src="SNR_experiment/12dB.wav" muted autoplay loop preload="auto" playsinline crossorigin="anonymous" style="display:none"></audio>
+                    <audio id="snr16" src="SNR_experiment/16dB.wav" muted autoplay loop preload="auto" playsinline crossorigin="anonymous" style="display:none"></audio>
+                    <audio id="snr20" src="SNR_experiment/20dB.wav" muted autoplay loop preload="auto" playsinline crossorigin="anonymous" style="display:none"></audio>
+                    <audio id="snr24" src="SNR_experiment/24dB.wav" muted autoplay loop preload="auto" playsinline crossorigin="anonymous" style="display:none"></audio>
+                    <audio id="snr28" src="SNR_experiment/28dB.wav" muted autoplay loop preload="auto" playsinline crossorigin="anonymous" style="display:none"></audio>
+                    <audio id="snr32" src="SNR_experiment/32dB.wav" muted autoplay loop preload="auto" playsinline crossorigin="anonymous" style="display:none"></audio>
+                    <audio id="snr36" src="SNR_experiment/36dB.wav" muted autoplay loop preload="auto" playsinline crossorigin="anonymous" style="display:none"></audio>
+                    <audio id="snr40" src="SNR_experiment/40dB.wav" muted autoplay loop preload="auto" playsinline crossorigin="anonymous" style="display:none"></audio>
+                    <audio id="snr44" src="SNR_experiment/44dB.wav" muted autoplay loop preload="auto" playsinline crossorigin="anonymous" style="display:none"></audio>
                 </div>
             </div>
 

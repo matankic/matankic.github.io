@@ -940,8 +940,39 @@
                 hintRafId = requestAnimationFrame(frame);
             }
 
-            // Trigger the hint shortly after load (4 passes total)
-            setTimeout(animateHint, 900);
+            // Trigger the hint only when the controller is in view (4 passes total)
+            function scheduleHintWhenVisible() {
+                const trigger = () => {
+                    // Small delay to allow layout settle
+                    setTimeout(() => { if (!hintRunning) animateHint(); }, 150);
+                };
+                if ('IntersectionObserver' in window) {
+                    const io = new IntersectionObserver((entries) => {
+                        for (const entry of entries) {
+                            if (entry.isIntersecting && entry.intersectionRatio >= 0.6) {
+                                io.disconnect();
+                                trigger();
+                                break;
+                            }
+                        }
+                    }, { threshold: [0.6] });
+                    io.observe(wrapper);
+                } else {
+                    const onScrollCheck = () => {
+                        const rect = wrapper.getBoundingClientRect();
+                        const vh = window.innerHeight || document.documentElement.clientHeight;
+                        const visible = rect.top < vh * 0.8 && rect.bottom > vh * 0.2;
+                        if (visible) {
+                            window.removeEventListener('scroll', onScrollCheck);
+                            trigger();
+                        }
+                    };
+                    window.addEventListener('scroll', onScrollCheck, { passive: true });
+                    // initial check in case it's already in view
+                    onScrollCheck();
+                }
+            }
+            scheduleHintWhenVisible();
         });
     </script>
 </head>

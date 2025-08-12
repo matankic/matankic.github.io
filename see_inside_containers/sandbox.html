@@ -542,6 +542,19 @@
             max-width: 620px;
         }
 
+        .snr-figure-container {
+            text-align: center;
+            margin: 0;
+            width: 100%;
+            position: relative;
+        }
+
+        .snr-figure {
+            max-width: 100%;
+            height: 250px;
+            border-radius: 8px;
+        }
+
         .signal-title {
             font-size: 0.95em;
             font-weight: 600;
@@ -624,6 +637,30 @@
                 margin-left: -10%;
                 margin-right: -10%;
             }
+        }
+
+        .gif-overlay {
+            position: absolute;
+            top: 47px;
+            left: calc(50% + 104px);
+            transform: translateX(-50%);
+            z-index: 10;
+        }
+
+        .gif-profile {
+            width: 123px;
+            height: 123px;
+            border-radius: 50%;
+            border: 3px solid white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+            object-fit: cover;
+        }
+
+
+
+        .gif-profile.active {
+            border-color: #209cee;
+            box-shadow: 0 0 15px rgba(32, 156, 238, 0.5);
         }
     </style>
     <script>
@@ -802,6 +839,15 @@
                 });
                 // Also update background sine tone volume
                 try { setSineVolume(adjustedVolume); } catch (e) {}
+
+                // Update speckle vibration GIF
+                const speckleGif = document.getElementById('speckleGif');
+                if (speckleGif && clamped > 0) {
+                    speckleGif.src = `SNR_experiment/speckle_vibration_fast_level_${clamped}.gif`;
+                } else if (speckleGif) {
+                    // For OFF level, show level 1 GIF
+                    speckleGif.src = `SNR_experiment/speckle_vibration_fast_level_1.gif`;
+                }
 
                 // a11y
                 wrapper.setAttribute('aria-valuenow', String(clamped));
@@ -1143,6 +1189,13 @@
 
 
         <div class="section">
+            <div class="snr-figure-container">
+                <img src="SNR_experiment/SNR_figure.png" alt="SNR Figure" class="snr-figure" />
+                <div class="gif-overlay">
+                    <img src="SNR_experiment/speckle_vibration_fast_level_1.gif" alt="Speckle Vibration" class="gif-profile" id="speckleGif" />
+                </div>
+            </div>
+
             <div class="controller-row">
                 <div class="volume-control" aria-hidden="false">
                     <div class="rotary-wrapper" id="volumeKnob" role="slider" aria-label="Speaker volume" aria-valuemin="0" aria-valuemax="11" aria-valuenow="0" tabindex="0">
@@ -1181,9 +1234,9 @@
             </div>
 
             <h1 class="subtitle">Can you hear the contents of a Coke bottle?</h1>
-            <p><b>TL;DR:</b> Yes, we can! (and by “we,” we mean a novel AI model). We accomplish this by sensing the tiny vibrations on the bottle’s surface and relating them to the bottle’s liquid level and type (i.e., Coke bottle, milk carton, etc.).</p>
+            <p><b>TL;DR:</b> Yes, we can! (and by "we," we mean a novel AI model). We accomplish this by sensing the tiny vibrations on the bottle's surface and relating them to the bottle's liquid level and type (i.e., Coke bottle, milk carton, etc.).</p>
 
-            <h1 class="subtitle">I’m intrigued—tell me (a little) more?</h1>
+            <h1 class="subtitle">I'm intrigued—tell me (a little) more?</h1>
             <p>First, we must capture these tiny surface vibrations at high speeds. To achieve this, we develop a novel computational imaging system that can capture object vibrations remotely for a 2D grid of scene points. </p>
             <p>We use our system to sense the vibrations of multiple scene containers at once, while we "excite" the vibrations using a nearby speaker by playing some <span onclick="toggleAudio('neveerGonnaGiveYouUp', this)" style="color: #209cee; font-weight:bold; cursor: pointer;">sound</span>.</p>
             <div style="height: 20px;"></div>
@@ -1205,7 +1258,7 @@
             <div style="height: 20px;"></div>
             
             <h1 class="subtitle">So why do you need an AI model for this task?</h1>
-            <p>The relationship between the vibration response of everyday containers to their fill level is actually quite complex. Don’t believe us? Try for yourself. Press below the containers to hear their response for different fill levels. Can you spot a pattern?</p>
+            <p>The relationship between the vibration response of everyday containers to their fill level is actually quite complex. Don't believe us? Try for yourself. Press below the containers to hear their response for different fill levels. Can you spot a pattern?</p>
             
             <div class="fill-level-image">
                 <img src="images/fill_levels.png" alt="Fill-level bottles" />
@@ -1232,7 +1285,7 @@
             
             <div style="height: 60px;"></div>
 
-            <p>If you couldn’t, don’t blame yourself. The vibrational response depends on various factors, including object geometry, materials, fluid-structure interactions, and additional factors. Luckily, our Vibration Transformer has a more acute “ear” than you, and can successfully classify the container’s hidden liquid level for a variety of containers (which we demonstrate experimentally).</p>
+            <p>If you couldn't, don't blame yourself. The vibrational response depends on various factors, including object geometry, materials, fluid-structure interactions, and additional factors. Luckily, our Vibration Transformer has a more acute "ear" than you, and can successfully classify the container's hidden liquid level for a variety of containers (which we demonstrate experimentally).</p>
             
             <p>Moreover, our architecture is robust to the vibration source, yielding correct liquid level estimates for controlled and ambient scene sound sources. And, our model generalizes to unseen container instances within known classes (e.g., training on five Coke cans of a six-pack, testing on a sixth) and fluid levels.</p>
             

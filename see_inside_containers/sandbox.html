@@ -1868,6 +1868,12 @@
             if (playBtn) {
                 playBtn.addEventListener('click', () => {
                     attachEndedHandlersOnce();
+                    // Toggle off if this button is already playing
+                    if (playBtn.classList.contains('playing')) {
+                        stopAllLevelAudios();
+                        releaseButtons();
+                        return;
+                    }
                     // Always release visual states first
                     releaseButtons();
                     const level = Number(slider.getAttribute('aria-valuenow') || '0');
@@ -1900,6 +1906,12 @@
             if (playBtnCoke) {
                 playBtnCoke.addEventListener('click', () => {
                     attachEndedHandlersOnce();
+                    // Toggle off if this button is already playing
+                    if (playBtnCoke.classList.contains('playing')) {
+                        stopAllLevelAudios();
+                        releaseButtons();
+                        return;
+                    }
                     // Always release visual states first
                     releaseButtons();
                     const level = Number(slider.getAttribute('aria-valuenow') || '0');

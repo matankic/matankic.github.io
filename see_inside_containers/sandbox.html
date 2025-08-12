@@ -565,35 +565,12 @@
             border: 1px solid #ececec;
         }
 
-        .wave-scroller {
-            position: absolute;
-            inset: 0;
-            width: 200%;
-            height: 100%;
-            display: flex;
-            animation: waveScroll 6s linear infinite;
-        }
-
-        @keyframes waveScroll {
-            from { transform: translateX(0); }
-            to   { transform: translateX(-50%); }
-        }
-
-        .signal-svg {
-            width: 50%;
-            height: 100%;
-        }
-
-        .signal-grid-line {
-            stroke: #eee;
-            stroke-width: 1;
-        }
-
-        .signal-path {
-            fill: none;
-            stroke: #2b6cb0;
-            stroke-width: 2;
-        }
+        /* Simple file:// friendly SVG scroller */
+        .signal-viewport { position: relative; width: 100%; height: 160px; overflow: hidden; border-radius: 8px; }
+        .signal-strip { position: absolute; inset: 0; width: 200%; height: 100%; display: flex; animation: signalScroll var(--scroll-duration, 8s) linear infinite; }
+        .signal-frame { width: 50%; height: 100%; }
+        .signal-img { width: 100%; height: 100%; object-fit: cover; display: block; }
+        @keyframes signalScroll { from { transform: translateX(0); } to { transform: translateX(-50%); } }
 
         .signal-meta {
             margin-top: 8px;
@@ -776,7 +753,8 @@
 
                 wrapper.dataset.level = String(clamped);
 
-                // No signal panel; nothing else to update
+                // Sync SVG panel to level
+                updateSignalFromLevel(clamped);
             }
 
             function angleToLevel(angleDeg) {
@@ -973,6 +951,8 @@
                 }
             }
             scheduleHintWhenVisible();
+
+
         });
     </script>
 </head>
@@ -1111,6 +1091,19 @@
                         <button class="volume-label" id="volumeLabel" type="button" aria-live="polite">OFF</button>
                     </div>
                 </div>
+
+                <div class="signal-panel" style="flex:1 1 480px; min-width:380px; max-width:620px;">
+                    <div class="signal-title">Recovered signal from vibrations</div>
+                    <div class="signal-card">
+                        <div class="signal-viewport">
+                            <div class="signal-strip" id="signalStrip" style="--scroll-duration: 8s;">
+                                <div class="signal-frame"><img id="sigImg1" class="signal-img" alt="signal A" /></div>
+                                <div class="signal-frame"><img id="sigImg2" class="signal-img" alt="signal B" /></div>
+                            </div>
+                        </div>
+                        <div class="signal-meta" id="signalMeta">SNR: 0 dB</div>
+                    </div>
+                </div>
             </div>
 
             <h1 class="subtitle">Can you hear the contents of a Coke bottle?</h1>
@@ -1216,5 +1209,42 @@
     </div> -->
       
     </div>
+
+    <script>
+        // ---------------- File:// SVG scroller wiring ----------------
+        const signalStrip = document.getElementById('signalStrip');
+        const sigImg1 = document.getElementById('sigImg1');
+        const sigImg2 = document.getElementById('sigImg2');
+        const metaEl = document.getElementById('signalMeta');
+
+        function getSvgPathForDb(db) {
+            // db is integer 0..44 step 4
+            return `SNR_experiment/${db}dB.svg`;
+        }
+
+        function setSignalForDb(db) {
+            const url = getSvgPathForDb(db);
+            sigImg1.src = url;
+            sigImg2.src = url;
+            metaEl.textContent = `SNR: ${db} dB`;
+        }
+
+        // Speed mapping: higher dB scrolls a bit faster
+        function setScrollSpeedForDb(db) {
+            const base = 10; // seconds
+            const speed = Math.max(5, base - db * 0.1); // 0dB ~10s, 44dB ~5.6s
+            signalStrip.style.setProperty('--scroll-duration', `${speed}s`);
+        }
+
+        function updateSignalFromLevel(levelIndex) {
+            const db = Math.max(0, Math.min(11, levelIndex)) * 4;
+            setSignalForDb(db);
+            setScrollSpeedForDb(db);
+        }
+
+        // Initial signal (OFF -> 0 dB)
+        setSignalForDb(0);
+        setScrollSpeedForDb(0);
+    </script>
 </body>
 </html>

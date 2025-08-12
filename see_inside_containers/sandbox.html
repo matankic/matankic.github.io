@@ -796,7 +796,7 @@
 
                 // Set global audio volume
                 const baseVolume = clamped / (NUM_LEVELS - 1);
-                const adjustedVolume = baseVolume * 0.005; // 99.5% reduction
+                const adjustedVolume = baseVolume * 0.033; // ~96.7% reduction
                 document.querySelectorAll('audio').forEach(a => {
                     try { a.volume = adjustedVolume; } catch(e) {}
                 });

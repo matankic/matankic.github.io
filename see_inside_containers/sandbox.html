@@ -396,7 +396,9 @@
         .controller-row {
             display: flex;
             gap: 28px;
-            align-items: flex-start;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
         }
 
         .volume-control {
@@ -405,7 +407,7 @@
             align-items: center;
             gap: 10px;
             margin-bottom: 10px;
-            margin-left: 48px; /* move right to allow pulling to OFF */
+            margin-left: 0; /* centered layout */
             user-select: none;
         }
 
@@ -535,7 +537,7 @@
 
         /* Signal panel */
         .signal-panel {
-            flex: 1 1 480px;
+            flex: 1 1 480px; /* restore previous preferred size */
             min-width: 380px;
             max-width: 620px;
         }
@@ -576,6 +578,14 @@
             margin-top: 8px;
             font-size: 0.9em;
             color: #555;
+        }
+
+        .signal-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            margin-top: 8px;
         }
         
         @media (max-width: 768px) {
@@ -707,6 +717,49 @@
             const ticksContainer = wrapper.querySelector('.ticks');
             const labelEl = document.getElementById('volumeLabel');
             const hintHand = document.getElementById('hintHand');
+            let hintLoopActive = true; // keep showing hint until user changes volume
+            const hintDelayMs = 3000;  // wait 3s before starting next hint loop
+
+            // -------- Background sine tone (422 Hz) --------
+            let sineInitialized = false;
+            let audioCtx = null;
+            let sineGain = null;
+            let oscillator = null;
+
+            function initSineIfNeeded() {
+                if (sineInitialized) {
+                    if (audioCtx?.state === 'suspended') {
+                        audioCtx.resume?.();
+                    }
+                    return;
+                }
+                try {
+                    const Ctx = window.AudioContext || window.webkitAudioContext;
+                    audioCtx = new Ctx();
+                    sineGain = audioCtx.createGain();
+                    sineGain.gain.value = 0.0; // start muted
+                    oscillator = audioCtx.createOscillator();
+                    oscillator.type = 'sine';
+                    oscillator.frequency.value = 422; // Hz
+                    oscillator.connect(sineGain).connect(audioCtx.destination);
+                    oscillator.start();
+                    sineInitialized = true;
+                } catch (e) {
+                    // no-op if Web Audio not available
+                }
+            }
+
+            function setSineVolume(volume01) {
+                if (!sineInitialized || !sineGain) return;
+                const v = Math.max(0, Math.min(1, volume01));
+                try {
+                    const now = audioCtx.currentTime || 0;
+                    // Smooth ramp for nicer UX
+                    sineGain.gain.setTargetAtTime(v, now, 0.05);
+                } catch (e) {
+                    sineGain.gain.value = v;
+                }
+            }
 
             const MIN_ANGLE = -120; // degrees
             const MAX_ANGLE = 120;  // degrees
@@ -742,10 +795,13 @@
                 labelEl.textContent = clamped === 0 ? 'OFF' : `${db} dB`;
 
                 // Set global audio volume
-                const volume = clamped / (NUM_LEVELS - 1);
+                const baseVolume = clamped / (NUM_LEVELS - 1);
+                const adjustedVolume = baseVolume * 0.005; // 99.5% reduction
                 document.querySelectorAll('audio').forEach(a => {
-                    try { a.volume = volume; } catch(e) {}
+                    try { a.volume = adjustedVolume; } catch(e) {}
                 });
+                // Also update background sine tone volume
+                try { setSineVolume(adjustedVolume); } catch (e) {}
 
                 // a11y
                 wrapper.setAttribute('aria-valuenow', String(clamped));
@@ -783,6 +839,13 @@
             let dragging = false;
             let pointerDownInside = false;
 
+            function disableHint() {
+                hintLoopActive = false;
+                if (hintRunning && hintRafId) cancelAnimationFrame(hintRafId);
+                hintRunning = false;
+                hintHand?.classList.remove('visible');
+            }
+
             function onPointerDown(e) {
                 dragging = true;
                 pointerDownInside = true;
@@ -797,8 +860,10 @@
                     setLevel(tentative);
                 }
                 e.preventDefault();
-                // Hide hint once interacted
-                hintHand?.classList.remove('visible');
+                // Init background sine on first interaction (user gesture)
+                try { initSineIfNeeded(); } catch (e) {}
+                // Stop hint loop on first interaction
+                disableHint();
             }
 
             function onPointerMove(e) {
@@ -832,7 +897,9 @@
                     setLevel(0);
                     e.preventDefault();
                 }
-                hintHand?.classList.remove('visible');
+                // Try to init background sine as well
+                try { initSineIfNeeded(); } catch (e) {}
+                disableHint();
             });
 
             // Toggle OFF/4 dB on counter click to avoid confusion when clicking OFF
@@ -840,7 +907,8 @@
                 const current = Number(wrapper.dataset.level || '0');
                 if (current === 0) setLevel(1); // OFF -> 4 dB
                 else setLevel(0);               // any -> OFF
-                hintHand?.classList.remove('visible');
+                try { initSineIfNeeded(); } catch (e) {}
+                disableHint();
             });
 
             // Initialize OFF and ensure label reads OFF
@@ -911,7 +979,11 @@
                             const y0 = Math.sin(rad0) * R1;
                             hintHand.style.transform = `translate(-50%, -50%) translate(${x0}px, ${y0}px)`;
                         })(startDeg);
-                        setTimeout(() => hintHand.classList.remove('visible'), 500);
+                        setTimeout(() => {
+                            hintHand.classList.remove('visible');
+                            // After fade out, wait 3s then start again if not interacted
+                            setTimeout(() => { if (hintLoopActive) animateHint(); }, hintDelayMs);
+                        }, 500);
                     }
                 }
 
@@ -1092,8 +1164,7 @@
                     </div>
                 </div>
 
-                <div class="signal-panel" style="flex:1 1 480px; min-width:380px; max-width:620px;">
-                    <div class="signal-title">Recovered signal from vibrations</div>
+                <div class="signal-panel">
                     <div class="signal-card">
                         <div class="signal-viewport">
                             <div class="signal-strip" id="signalStrip" style="--scroll-duration: 8s;">
@@ -1101,7 +1172,10 @@
                                 <div class="signal-frame"><img id="sigImg2" class="signal-img" alt="signal B" /></div>
                             </div>
                         </div>
-                        <div class="signal-meta" id="signalMeta">SNR: 0 dB</div>
+                        <div class="signal-footer">
+                            <div class="signal-meta" id="signalMeta">SNR: 0 dB</div>
+                            <div class="signal-meta">Recovered signal from vibrations</div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -1222,11 +1296,27 @@
             return `SNR_experiment/${db}dB.svg`;
         }
 
+        const SNR_BY_DB = {
+            0: "-29.18",
+            4: "-14.11",
+            8: "-6.988",
+            12: "-5.517",
+            16: "-1.554",
+            20: "3.125",
+            24: "8.203",
+            28: "11.85",
+            32: "15.5",
+            36: "19.27",
+            40: "23.04",
+            44: "25.85"
+        };
+
         function setSignalForDb(db) {
             const url = getSvgPathForDb(db);
             sigImg1.src = url;
             sigImg2.src = url;
-            metaEl.textContent = `SNR: ${db} dB`;
+            const mapped = SNR_BY_DB[db] ?? String(db);
+            metaEl.textContent = `SNR: ${mapped} dB`;
         }
 
         // Speed mapping: higher dB scrolls a bit faster

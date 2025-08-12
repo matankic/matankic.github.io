@@ -978,7 +978,8 @@
                 // Set global audio volume
                 const baseVolume = clamped / (NUM_LEVELS - 1);
                 const adjustedVolume = baseVolume; // full range 0.0 → 1.0
-                document.querySelectorAll('audio').forEach(a => {
+                // Apply master volume to all audios except those explicitly excluded
+                document.querySelectorAll('audio:not(.ignore-global-volume)').forEach(a => {
                     try { a.volume = adjustedVolume; } catch(e) {}
                 });
                 // Also update background sine tone volume
@@ -1463,7 +1464,7 @@
             <h1 class="subtitle" style="color:red">Full details coming soon.</h1>
             
             <!-- hidden audio elements anywhere in the body: -->
-            <audio id="neveerGonnaGiveYouUp" src="audios/neveerGonnaGiveYouUp.wav"></audio>
+            <audio id="neveerGonnaGiveYouUp" class="ignore-global-volume" src="audios/neveerGonnaGiveYouUp.wav"></audio>
 
             
 <!--             <audio id="wine_1" src="audios/wine_1.wav"></audio>

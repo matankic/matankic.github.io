@@ -806,6 +806,11 @@
             left: -10px; /* 10px to the left */
             top: 5px;    /* 3px down */
         }
+
+        /* Fine-tune coke can play button position */
+        #vPlayBtnCoke {
+            left: -12px; /* 2px further left than default */
+        }
     </style>
     <script>
         function toggleAudio(audioId, button) {
@@ -1408,6 +1413,12 @@
                             <span class="front">▶</span>
                         </button>
                     </div>
+                    <div class="v-preview-col">
+                        <img id="vPreviewCoke" class="v-preview-img" alt="coke fill level preview" />
+                        <button class="pushable pushable-inline" id="vPlayBtnCoke" type="button">
+                            <span class="front">▶</span>
+                        </button>
+                    </div>
                 </div>
             </div>
             <p>We use our system to sense the vibrations of multiple scene containers at once, while we "excite" the vibrations using a nearby speaker by playing some <span onclick="toggleAudio('neveerGonnaGiveYouUp', this)" style="color: #209cee; font-weight:bold; cursor: pointer;">sound</span>.</p>
@@ -1525,7 +1536,9 @@
             const valueEl = document.getElementById('vValue');
             const hintHand = document.getElementById('vHintHand');
             const previewImg = document.getElementById('vPreview');
+            const previewCoke = document.getElementById('vPreviewCoke');
             const playBtn = document.getElementById('vPlayBtn');
+            const playBtnCoke = document.getElementById('vPlayBtnCoke');
             if (!slider || !thumb || !ticksWrap || !valueEl || !water) return;
 
             const NUM_LEVELS = 6; // 0..5 → {0,20,40,60,80,100}%
@@ -1545,6 +1558,11 @@
                 return `images/lvl${pct}_oat.png`;
             }
 
+            function cokeImageForLevel(levelIndex) {
+                const pct = levelIndex * 20; // 0..100
+                return `images/lvl${pct}_coke.png`;
+            }
+
             function audioIdForLevel(levelIndex) {
                 // Use the mapped Never Gonna files already present in the doc
                 return `audio${levelIndex}`; // audio0..audio5 → never_level{0|20|40|60|80|100}.wav
@@ -1558,6 +1576,26 @@
                     }
                 } catch (e) {}
             }
+
+            function releaseButtons() {
+                try {
+                    playBtn?.classList.remove('playing');
+                    playBtnCoke?.classList.remove('playing');
+                } catch (e) {}
+            }
+
+            // Ensure that when any level audio ends, both buttons are visually released
+            function attachEndedHandlersOnce() {
+                try {
+                    for (let i = 0; i < 6; i++) {
+                        const a = document.getElementById(`audio${i}`);
+                        if (!a || a.__endedHooked) continue;
+                        a.addEventListener('ended', () => { releaseButtons(); });
+                        a.__endedHooked = true; // mark to avoid duplicate listeners
+                    }
+                } catch (e) {}
+            }
+            attachEndedHandlersOnce();
 
             function setLevel(level) {
                 const clamped = Math.max(0, Math.min(NUM_LEVELS - 1, level));
@@ -1576,6 +1614,9 @@
                 // Update preview image to match discrete level
                 if (previewImg) {
                     previewImg.src = imageForLevel(clamped);
+                }
+                if (previewCoke) {
+                    previewCoke.src = cokeImageForLevel(clamped);
                 }
             }
 
@@ -1711,7 +1752,7 @@
                 // Init lastDragNearestLevel and release play state
                 const nearest = Math.max(0, Math.min(NUM_LEVELS - 1, Math.round(currentFloat)));
                 lastDragNearestLevel = nearest;
-                playBtn?.classList.remove('playing');
+                releaseButtons();
                 stopAllLevelAudios();
                 // Live preview update (nearest discrete level)
                 if (previewImg) {
@@ -1736,12 +1777,16 @@
                 if (previewImg) {
                     const nearest = Math.max(0, Math.min(NUM_LEVELS - 1, Math.round(currentFloat)));
                     previewImg.src = imageForLevel(nearest);
-                    // If discrete level changed mid-drag, release the play button and stop audio
+                    // If discrete level changed mid-drag, release both play buttons and stop audio
                     if (lastDragNearestLevel === null || nearest !== lastDragNearestLevel) {
                         lastDragNearestLevel = nearest;
-                        playBtn?.classList.remove('playing');
+                        releaseButtons();
                         stopAllLevelAudios();
                     }
+                }
+                if (previewCoke) {
+                    const nearest = Math.max(0, Math.min(NUM_LEVELS - 1, Math.round(currentFloat)));
+                    previewCoke.src = cokeImageForLevel(nearest);
                 }
             }
 
@@ -1762,7 +1807,7 @@
             // Keyboard: ArrowUp/Down to move between 6 levels
             slider.addEventListener('keydown', (e) => {
                 const now = Number(slider.getAttribute('aria-valuenow') || '0');
-                const releaseAndStop = () => { playBtn?.classList.remove('playing'); stopAllLevelAudios(); };
+                const releaseAndStop = () => { releaseButtons(); stopAllLevelAudios(); };
                 if (e.key === 'ArrowUp') { releaseAndStop(); setLevel(now + 1); e.preventDefault(); }
                 else if (e.key === 'ArrowDown') { releaseAndStop(); setLevel(now - 1); e.preventDefault(); }
                 else if (e.key === 'Home') { releaseAndStop(); setLevel(0); e.preventDefault(); }
@@ -1778,14 +1823,17 @@
             // Wire play button: play corresponding level audio and keep pressed until audio ends
             if (playBtn) {
                 playBtn.addEventListener('click', () => {
+                    attachEndedHandlersOnce();
+                    // Always release visual states first
+                    releaseButtons();
                     const level = Number(slider.getAttribute('aria-valuenow') || '0');
                     const audioId = audioIdForLevel(level);
-                    // Stop any other level audios
+                    // Stop ALL level audios to interrupt previous playback
                     try {
                         for (let i = 0; i < 6; i++) {
                             const a = document.getElementById(`audio${i}`);
                             if (!a) continue;
-                            if (`audio${i}` !== audioId) { a.pause(); a.currentTime = 0; }
+                            a.pause(); a.currentTime = 0;
                         }
                     } catch (e) {}
                     const audioEl = document.getElementById(audioId);
@@ -1796,14 +1844,40 @@
                         const p = audioEl.play();
                         if (p && typeof p.catch === 'function') p.catch(() => {});
                         playBtn.classList.add('playing');
-                        audioEl.addEventListener('ended', function onEnd(){
-                            playBtn.classList.remove('playing');
-                            audioEl.removeEventListener('ended', onEnd);
-                        });
                     } else {
-                        audioEl.pause();
+                        // Already playing: just transfer pressed state to this button
+                        playBtn.classList.add('playing');
+                    }
+                });
+            }
+
+            // Second play button (Coke) uses the same audio mapping for now
+            if (playBtnCoke) {
+                playBtnCoke.addEventListener('click', () => {
+                    attachEndedHandlersOnce();
+                    // Always release visual states first
+                    releaseButtons();
+                    const level = Number(slider.getAttribute('aria-valuenow') || '0');
+                    const audioId = audioIdForLevel(level);
+                    // Stop ALL level audios to interrupt previous playback
+                    try {
+                        for (let i = 0; i < 6; i++) {
+                            const a = document.getElementById(`audio${i}`);
+                            if (!a) continue;
+                            a.pause(); a.currentTime = 0;
+                        }
+                    } catch (e) {}
+                    const audioEl = document.getElementById(audioId);
+                    if (!audioEl) return;
+                    try { audioEl.muted = false; audioEl.volume = 1.0; } catch (e) {}
+                    if (audioEl.paused) {
                         audioEl.currentTime = 0;
-                        playBtn.classList.remove('playing');
+                        const p = audioEl.play();
+                        if (p && typeof p.catch === 'function') p.catch(() => {});
+                        playBtnCoke.classList.add('playing');
+                    } else {
+                        // Already playing: just transfer pressed state to this button
+                        playBtnCoke.classList.add('playing');
                     }
                 });
             }

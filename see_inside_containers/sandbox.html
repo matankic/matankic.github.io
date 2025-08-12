@@ -673,11 +673,31 @@
             margin: 16px 0 26px;
         }
 
+        .v-slider-row {
+            display: flex;
+            align-items: flex-end; /* align bottoms of slider and image */
+            justify-content: center;
+            gap: 32px; /* further to the right */
+            width: 100%;
+        }
+
+        .v-slider-col {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .v-preview-col {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
         .v-slider-label {
             font-size: 0.95em;
             font-weight: 600;
             color: #333;
-            margin-top: 8px; /* extra space from slider */
+            margin-top: 15px; /* extra space from slider */
         }
 
         .v-slider {
@@ -772,6 +792,19 @@
             border-radius: 999px;
             padding: 1px 4px;
             font-variant-numeric: tabular-nums;
+        }
+
+        .v-preview-img { width: 140px; height: auto; display: block; }
+
+        /* Inline play button under preview (reuse pushable styles, override positioning) */
+        .pushable-inline {
+            position: relative;
+            bottom: auto;
+            transform: none;
+            outline-offset: 0;
+            margin-top: 10px;
+            left: -10px; /* 10px to the left */
+            top: 5px;    /* 3px down */
         }
     </style>
     <script>
@@ -944,7 +977,7 @@
 
                 // Set global audio volume
                 const baseVolume = clamped / (NUM_LEVELS - 1);
-                const adjustedVolume = baseVolume * 0.033; // ~96.7% reduction
+                const adjustedVolume = baseVolume; // full range 0.0 → 1.0
                 document.querySelectorAll('audio').forEach(a => {
                     try { a.volume = adjustedVolume; } catch(e) {}
                 });
@@ -1352,19 +1385,29 @@
 
             <!-- Vertical slider: centered, blue accent, 6 discrete levels -->
             <div class="v-slider-section" aria-hidden="false">
-                <div class="v-slider" id="vSlider" role="slider" aria-orientation="vertical" aria-valuemin="0" aria-valuemax="5" aria-valuenow="0" tabindex="0">
-                    <div class="v-track"></div>
-                    <div class="v-water" id="vWater"></div>
-                    <div class="v-ticks" id="vTicks"></div>
-                    <div class="v-thumb" id="vThumb" aria-hidden="true"></div>
-                    <!-- hint hand icon for vertical slider -->
-                    <svg class="v-hint-hand" id="vHintHand" viewBox="0 0 64 64" aria-hidden="true">
-                        <path fill="#ffffff" stroke="#bbb" d="M20 30v-8a4 4 0 0 1 8 0v8h2v-10a4 4 0 0 1 8 0v10h2v-8a4 4 0 0 1 8 0v16c0 7-5 12-12 12h-6c-7 0-12-5-12-12v-8z"/>
-                        <circle cx="26" cy="50" r="2" fill="#bbb"/>
-                    </svg>
+                <div class="v-slider-row">
+                    <div class="v-slider-col">
+                        <div class="v-slider" id="vSlider" role="slider" aria-orientation="vertical" aria-valuemin="0" aria-valuemax="5" aria-valuenow="0" tabindex="0">
+                        <div class="v-track"></div>
+                        <div class="v-water" id="vWater"></div>
+                        <div class="v-ticks" id="vTicks"></div>
+                        <div class="v-thumb" id="vThumb" aria-hidden="true"></div>
+                        <!-- hint hand icon for vertical slider -->
+                        <svg class="v-hint-hand" id="vHintHand" viewBox="0 0 64 64" aria-hidden="true">
+                            <path fill="#ffffff" stroke="#bbb" d="M20 30v-8a4 4 0 0 1 8 0v8h2v-10a4 4 0 0 1 8 0v10h2v-8a4 4 0 0 1 8 0v16c0 7-5 12-12 12h-6c-7 0-12-5-12-12v-8z"/>
+                            <circle cx="26" cy="50" r="2" fill="#bbb"/>
+                        </svg>
+                        </div>
+                        <div class="v-slider-label">Fill Level</div>
+                        <div class="v-value" id="vValue">0%</div>
+                    </div>
+                    <div class="v-preview-col">
+                        <img id="vPreview" class="v-preview-img" alt="fill level preview" />
+                        <button class="pushable pushable-inline" id="vPlayBtn" type="button">
+                            <span class="front">▶</span>
+                        </button>
+                    </div>
                 </div>
-                <div class="v-slider-label">Fill Level</div>
-                <div class="v-value" id="vValue">0%</div>
             </div>
             <p>We use our system to sense the vibrations of multiple scene containers at once, while we "excite" the vibrations using a nearby speaker by playing some <span onclick="toggleAudio('neveerGonnaGiveYouUp', this)" style="color: #209cee; font-weight:bold; cursor: pointer;">sound</span>.</p>
             <div style="height: 20px;"></div>
@@ -1480,6 +1523,8 @@
             const ticksWrap = document.getElementById('vTicks');
             const valueEl = document.getElementById('vValue');
             const hintHand = document.getElementById('vHintHand');
+            const previewImg = document.getElementById('vPreview');
+            const playBtn = document.getElementById('vPlayBtn');
             if (!slider || !thumb || !ticksWrap || !valueEl || !water) return;
 
             const NUM_LEVELS = 6; // 0..5 → {0,20,40,60,80,100}%
@@ -1492,6 +1537,25 @@
                 const pct = (i / (NUM_LEVELS - 1)) * 100; // 0..100
                 tick.style.bottom = `${pct}%`;
                 ticksWrap.appendChild(tick);
+            }
+
+            function imageForLevel(levelIndex) {
+                const pct = levelIndex * 20; // 0..100
+                return `images/lvl${pct}_oat.png`;
+            }
+
+            function audioIdForLevel(levelIndex) {
+                // Use the mapped Never Gonna files already present in the doc
+                return `audio${levelIndex}`; // audio0..audio5 → never_level{0|20|40|60|80|100}.wav
+            }
+
+            function stopAllLevelAudios() {
+                try {
+                    for (let i = 0; i < 6; i++) {
+                        const a = document.getElementById(`audio${i}`);
+                        if (a) { a.pause(); a.currentTime = 0; }
+                    }
+                } catch (e) {}
             }
 
             function setLevel(level) {
@@ -1507,6 +1571,11 @@
                 const trackHeight = rect.height - (trackTop + trackBottom);
                 const waterHeightPx = (pct / 100) * trackHeight;
                 water.style.height = `${waterHeightPx}px`;
+
+                // Update preview image to match discrete level
+                if (previewImg) {
+                    previewImg.src = imageForLevel(clamped);
+                }
             }
 
             function clientYToLevel(clientY) {
@@ -1522,6 +1591,7 @@
 
             let dragging = false;
             let currentFloat = 0; // track float while dragging
+            let lastDragNearestLevel = null; // track nearest discrete level while dragging
 
             // --- Hint loop: show hand moving 0% -> 60% -> 0%, twice, then fade and wait 3s ---
             let vHintLoopActive = true;
@@ -1637,6 +1707,15 @@
                 const trackHeight = rect.height - 20; // 10 top + 10 bottom
                 const waterHeightPx = (pct / 100) * trackHeight;
                 water.style.height = `${waterHeightPx}px`;
+                // Init lastDragNearestLevel and release play state
+                const nearest = Math.max(0, Math.min(NUM_LEVELS - 1, Math.round(currentFloat)));
+                lastDragNearestLevel = nearest;
+                playBtn?.classList.remove('playing');
+                stopAllLevelAudios();
+                // Live preview update (nearest discrete level)
+                if (previewImg) {
+                    previewImg.src = imageForLevel(nearest);
+                }
                 e.preventDefault();
                 // stop hint loop on first interaction
                 disableVHint();
@@ -1652,6 +1731,17 @@
                 const trackHeight = rect.height - 20; // 10 top + 10 bottom
                 const waterHeightPx = (pct / 100) * trackHeight;
                 water.style.height = `${waterHeightPx}px`;
+                // Live preview update (nearest discrete level)
+                if (previewImg) {
+                    const nearest = Math.max(0, Math.min(NUM_LEVELS - 1, Math.round(currentFloat)));
+                    previewImg.src = imageForLevel(nearest);
+                    // If discrete level changed mid-drag, release the play button and stop audio
+                    if (lastDragNearestLevel === null || nearest !== lastDragNearestLevel) {
+                        lastDragNearestLevel = nearest;
+                        playBtn?.classList.remove('playing');
+                        stopAllLevelAudios();
+                    }
+                }
             }
 
             function onPointerUp(e) {
@@ -1671,10 +1761,11 @@
             // Keyboard: ArrowUp/Down to move between 6 levels
             slider.addEventListener('keydown', (e) => {
                 const now = Number(slider.getAttribute('aria-valuenow') || '0');
-                if (e.key === 'ArrowUp') { setLevel(now + 1); e.preventDefault(); }
-                else if (e.key === 'ArrowDown') { setLevel(now - 1); e.preventDefault(); }
-                else if (e.key === 'Home') { setLevel(0); e.preventDefault(); }
-                else if (e.key === 'End') { setLevel(NUM_LEVELS - 1); e.preventDefault(); }
+                const releaseAndStop = () => { playBtn?.classList.remove('playing'); stopAllLevelAudios(); };
+                if (e.key === 'ArrowUp') { releaseAndStop(); setLevel(now + 1); e.preventDefault(); }
+                else if (e.key === 'ArrowDown') { releaseAndStop(); setLevel(now - 1); e.preventDefault(); }
+                else if (e.key === 'Home') { releaseAndStop(); setLevel(0); e.preventDefault(); }
+                else if (e.key === 'End') { releaseAndStop(); setLevel(NUM_LEVELS - 1); e.preventDefault(); }
                 disableVHint();
             });
 
@@ -1682,6 +1773,39 @@
             setLevel(0);
             // Start hint loop after a small delay
             setTimeout(() => { if (hintHand) { positionHintAtPercent(0); animateVHint(); } }, 400);
+
+            // Wire play button: play corresponding level audio and keep pressed until audio ends
+            if (playBtn) {
+                playBtn.addEventListener('click', () => {
+                    const level = Number(slider.getAttribute('aria-valuenow') || '0');
+                    const audioId = audioIdForLevel(level);
+                    // Stop any other level audios
+                    try {
+                        for (let i = 0; i < 6; i++) {
+                            const a = document.getElementById(`audio${i}`);
+                            if (!a) continue;
+                            if (`audio${i}` !== audioId) { a.pause(); a.currentTime = 0; }
+                        }
+                    } catch (e) {}
+                    const audioEl = document.getElementById(audioId);
+                    if (!audioEl) return;
+                    try { audioEl.muted = false; audioEl.volume = 1.0; } catch (e) {}
+                    if (audioEl.paused) {
+                        audioEl.currentTime = 0;
+                        const p = audioEl.play();
+                        if (p && typeof p.catch === 'function') p.catch(() => {});
+                        playBtn.classList.add('playing');
+                        audioEl.addEventListener('ended', function onEnd(){
+                            playBtn.classList.remove('playing');
+                            audioEl.removeEventListener('ended', onEnd);
+                        });
+                    } else {
+                        audioEl.pause();
+                        audioEl.currentTime = 0;
+                        playBtn.classList.remove('playing');
+                    }
+                });
+            }
         })();
 
         function getSvgPathForDb(db) {

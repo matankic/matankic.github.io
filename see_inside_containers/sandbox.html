@@ -662,6 +662,117 @@
             border-color: #209cee;
             box-shadow: 0 0 15px rgba(32, 156, 238, 0.5);
         }
+
+        /* Vertical slider (blue accent, discrete 6 levels) */
+        .v-slider-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin: 16px 0 26px;
+        }
+
+        .v-slider-label {
+            font-size: 0.95em;
+            font-weight: 600;
+            color: #333;
+            margin-top: 8px; /* extra space from slider */
+        }
+
+        .v-slider {
+            position: relative;
+            width: 44px;
+            height: 260px;
+            user-select: none;
+            touch-action: none;
+            outline: none;
+        }
+
+        .v-track {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            top: 10px;
+            bottom: 10px;
+            width: 8px;
+            border-radius: 6px;
+            background: linear-gradient(180deg, #e9f0ff 0%, #d8e5ff 100%);
+            box-shadow: inset 0 0 0 1px rgba(13, 110, 253, 0.12);
+            z-index: 0;
+        }
+
+        .v-water {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            bottom: 10px; /* align with track bottom */
+            width: 8px;
+            height: 0px; /* will be updated in JS */
+            border-radius: 6px;
+            background: linear-gradient(180deg, #6fb6ff 0%, #0d6efd 70%);
+            box-shadow: inset 0 -2px 6px rgba(0,0,0,0.12), 0 0 0 1px rgba(13,110,253,0.18);
+            transition: height 140ms ease;
+            z-index: 1;
+        }
+
+        .v-ticks { position: absolute; inset: 15px 0 10px 0; z-index: 2; pointer-events: none; }
+        .v-tick {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            background: rgba(13,110,253,0.3);
+        }
+
+        .v-thumb {
+            position: absolute;
+            left: 50%;
+            transform: translate(-50%, 50%);
+            bottom: 0%;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: #0d6efd;
+            border: 3px solid #ffffff;
+            box-shadow: 0 4px 10px rgba(13,110,253,0.35);
+            cursor: grab;
+            transition: bottom 140ms ease;
+            z-index: 3;
+        }
+        .v-slider.dragging .v-thumb { cursor: grabbing; transition: none; }
+        .v-slider.dragging .v-water { transition: none; }
+
+        /* Vertical slider hint hand */
+        .v-hint-hand {
+            position: absolute;
+            left: calc(50% - 40px); /* shift slightly left of the bar */
+            transform: none;
+            bottom: 10px; /* start at track bottom */
+            width: 30px;
+            height: 30px;
+            opacity: 0.0;
+            transition: opacity 300ms ease;
+            pointer-events: none;
+            z-index: 4;
+            filter: drop-shadow(0 2px 2px rgba(0,0,0,0.2));
+        }
+        .v-hint-hand.visible { opacity: 0.95; }
+
+        .v-value {
+            display: inline-block;
+            min-width: 48px;
+            text-align: center;
+            font-weight: 600;
+            color: #0d6efd;
+            background: #eef4ff;
+            border: 1px solid rgba(13,110,253,0.25);
+            border-radius: 999px;
+            padding: 1px 4px;
+            font-variant-numeric: tabular-nums;
+        }
     </style>
     <script>
         function toggleAudio(audioId, button) {
@@ -1238,6 +1349,23 @@
 
             <h1 class="subtitle">I'm intrigued—tell me (a little) more?</h1>
             <p>First, we must capture these tiny surface vibrations at high speeds. To achieve this, we develop a novel computational imaging system that can capture object vibrations remotely for a 2D grid of scene points. </p>
+
+            <!-- Vertical slider: centered, blue accent, 6 discrete levels -->
+            <div class="v-slider-section" aria-hidden="false">
+                <div class="v-slider" id="vSlider" role="slider" aria-orientation="vertical" aria-valuemin="0" aria-valuemax="5" aria-valuenow="0" tabindex="0">
+                    <div class="v-track"></div>
+                    <div class="v-water" id="vWater"></div>
+                    <div class="v-ticks" id="vTicks"></div>
+                    <div class="v-thumb" id="vThumb" aria-hidden="true"></div>
+                    <!-- hint hand icon for vertical slider -->
+                    <svg class="v-hint-hand" id="vHintHand" viewBox="0 0 64 64" aria-hidden="true">
+                        <path fill="#ffffff" stroke="#bbb" d="M20 30v-8a4 4 0 0 1 8 0v8h2v-10a4 4 0 0 1 8 0v10h2v-8a4 4 0 0 1 8 0v16c0 7-5 12-12 12h-6c-7 0-12-5-12-12v-8z"/>
+                        <circle cx="26" cy="50" r="2" fill="#bbb"/>
+                    </svg>
+                </div>
+                <div class="v-slider-label">Fill Level</div>
+                <div class="v-value" id="vValue">0%</div>
+            </div>
             <p>We use our system to sense the vibrations of multiple scene containers at once, while we "excite" the vibrations using a nearby speaker by playing some <span onclick="toggleAudio('neveerGonnaGiveYouUp', this)" style="color: #209cee; font-weight:bold; cursor: pointer;">sound</span>.</p>
             <div style="height: 20px;"></div>
             
@@ -1343,6 +1471,218 @@
         const sigImg1 = document.getElementById('sigImg1');
         const sigImg2 = document.getElementById('sigImg2');
         const metaEl = document.getElementById('signalMeta');
+
+        // ---------------- Vertical discrete slider (6 levels) ----------------
+        (function initVerticalSlider(){
+            const slider = document.getElementById('vSlider');
+            const thumb = document.getElementById('vThumb');
+            const water = document.getElementById('vWater');
+            const ticksWrap = document.getElementById('vTicks');
+            const valueEl = document.getElementById('vValue');
+            const hintHand = document.getElementById('vHintHand');
+            if (!slider || !thumb || !ticksWrap || !valueEl || !water) return;
+
+            const NUM_LEVELS = 6; // 0..5 → {0,20,40,60,80,100}%
+            const toPercent = (level)=> level * 20; // level index to display percent
+
+            // Build ticks at fixed positions (0..100%) from bottom
+            for (let i = 0; i < NUM_LEVELS; i++) {
+                const tick = document.createElement('div');
+                tick.className = 'v-tick';
+                const pct = (i / (NUM_LEVELS - 1)) * 100; // 0..100
+                tick.style.bottom = `${pct}%`;
+                ticksWrap.appendChild(tick);
+            }
+
+            function setLevel(level) {
+                const clamped = Math.max(0, Math.min(NUM_LEVELS - 1, level));
+                const pct = (clamped / (NUM_LEVELS - 1)) * 100;
+                thumb.style.bottom = `${pct}%`;
+                valueEl.textContent = `${toPercent(clamped)}%`;
+                slider.setAttribute('aria-valuenow', String(clamped));
+                // Update water height to match track percentage
+                const rect = slider.getBoundingClientRect();
+                const trackTop = 10;  // per CSS
+                const trackBottom = 10; // per CSS
+                const trackHeight = rect.height - (trackTop + trackBottom);
+                const waterHeightPx = (pct / 100) * trackHeight;
+                water.style.height = `${waterHeightPx}px`;
+            }
+
+            function clientYToLevel(clientY) {
+                const rect = slider.getBoundingClientRect();
+                const trackTop = rect.top + 10;   // from CSS .v-track top
+                const trackBottom = rect.bottom - 10; // from CSS .v-track bottom
+                const trackHeight = trackBottom - trackTop;
+                const y = Math.max(trackTop, Math.min(trackBottom, clientY));
+                const t = 1 - (y - trackTop) / trackHeight; // 0..1 bottom->top
+                const raw = t * (NUM_LEVELS - 1);
+                return raw; // return float for continuous feel
+            }
+
+            let dragging = false;
+            let currentFloat = 0; // track float while dragging
+
+            // --- Hint loop: show hand moving 0% -> 60% -> 0%, twice, then fade and wait 3s ---
+            let vHintLoopActive = true;
+            let vHintRunning = false;
+            let vHintRafId = 0;
+
+            function positionHintAtPercent(percent) {
+                if (!hintHand) return;
+                const rect = slider.getBoundingClientRect();
+                const trackHeight = rect.height - 20; // 10 top + 10 bottom
+                const bottomPx = 10 + (Math.max(0, Math.min(100, percent)) / 100) * trackHeight;
+                hintHand.style.bottom = `${bottomPx}px`;
+            }
+
+            function easeOutCubic(t) { return 1 - Math.pow(1 - t, 3); }
+
+            function animateVHint() {
+                if (!hintHand || !vHintLoopActive) return;
+                if (vHintRunning) return;
+                vHintRunning = true;
+
+                // Place at 0% before showing
+                positionHintAtPercent(0);
+                hintHand.classList.add('visible');
+
+                const baseDur = 900; // ms per segment
+                const segments = 4;  // up, down, up, down
+                const totalDur = baseDur * segments;
+                const startTime = performance.now();
+
+                function frame(now) {
+                    // stop if disabled mid-animation
+                    if (!vHintLoopActive) {
+                        vHintRunning = false;
+                        hintHand.classList.remove('visible');
+                        return;
+                    }
+                    const p = Math.min(0.999, (now - startTime) / totalDur);
+                    const segFloat = p * segments;
+                    const seg = Math.floor(segFloat);
+                    const localT = segFloat - seg; // 0..1
+                    const eased = easeOutCubic(localT);
+
+                    // 0% <-> 60% path
+                    let percent;
+                    if (seg % 2 === 0) {
+                        // forward: 0 -> 60
+                        percent = 60 * eased;
+                    } else {
+                        // back: 60 -> 0
+                        percent = 60 * (1 - eased);
+                    }
+                    positionHintAtPercent(percent);
+
+                    if (p < 0.999 && vHintRunning) {
+                        vHintRafId = requestAnimationFrame(frame);
+                    } else {
+                        // Second loop immediately
+                        const start2 = performance.now();
+                        function frame2(now2) {
+                            if (!vHintLoopActive) {
+                                vHintRunning = false;
+                                hintHand.classList.remove('visible');
+                                return;
+                            }
+                            const p2 = Math.min(0.999, (now2 - start2) / totalDur);
+                            const segFloat2 = p2 * segments;
+                            const seg2 = Math.floor(segFloat2);
+                            const localT2 = segFloat2 - seg2;
+                            const eased2 = easeOutCubic(localT2);
+                            let percent2;
+                            if (seg2 % 2 === 0) {
+                                percent2 = 60 * eased2;
+                            } else {
+                                percent2 = 60 * (1 - eased2);
+                            }
+                            positionHintAtPercent(percent2);
+                            if (p2 < 0.999) {
+                                vHintRafId = requestAnimationFrame(frame2);
+                            } else {
+                                // Snap to 0%, fade out, then wait 3s and restart
+                                positionHintAtPercent(0);
+                                vHintRunning = false;
+                                setTimeout(() => {
+                                    hintHand.classList.remove('visible');
+                                    setTimeout(() => { if (vHintLoopActive) animateVHint(); }, 3000);
+                                }, 50);
+                            }
+                        }
+                        vHintRafId = requestAnimationFrame(frame2);
+                    }
+                }
+                vHintRafId = requestAnimationFrame(frame);
+            }
+
+            function disableVHint() {
+                vHintLoopActive = false;
+                if (vHintRunning && vHintRafId) cancelAnimationFrame(vHintRafId);
+                vHintRunning = false;
+                hintHand?.classList.remove('visible');
+            }
+
+            function onPointerDown(e) {
+                dragging = true;
+                slider.classList.add('dragging');
+                slider.setPointerCapture?.(e.pointerId);
+                currentFloat = clientYToLevel(e.clientY);
+                // live position during drag
+                const pct = (currentFloat / (NUM_LEVELS - 1)) * 100;
+                thumb.style.bottom = `${pct}%`;
+                // Live water update
+                const rect = slider.getBoundingClientRect();
+                const trackHeight = rect.height - 20; // 10 top + 10 bottom
+                const waterHeightPx = (pct / 100) * trackHeight;
+                water.style.height = `${waterHeightPx}px`;
+                e.preventDefault();
+                // stop hint loop on first interaction
+                disableVHint();
+            }
+
+            function onPointerMove(e) {
+                if (!dragging) return;
+                currentFloat = clientYToLevel(e.clientY);
+                const pct = (currentFloat / (NUM_LEVELS - 1)) * 100;
+                thumb.style.bottom = `${pct}%`;
+                // Live water update during drag
+                const rect = slider.getBoundingClientRect();
+                const trackHeight = rect.height - 20; // 10 top + 10 bottom
+                const waterHeightPx = (pct / 100) * trackHeight;
+                water.style.height = `${waterHeightPx}px`;
+            }
+
+            function onPointerUp(e) {
+                if (!dragging) return;
+                dragging = false;
+                slider.classList.remove('dragging');
+                slider.releasePointerCapture?.(e.pointerId);
+                // snap to nearest discrete level
+                const snapped = Math.round(currentFloat);
+                setLevel(snapped);
+            }
+
+            slider.addEventListener('pointerdown', onPointerDown);
+            window.addEventListener('pointermove', onPointerMove, { passive: true });
+            window.addEventListener('pointerup', onPointerUp);
+
+            // Keyboard: ArrowUp/Down to move between 6 levels
+            slider.addEventListener('keydown', (e) => {
+                const now = Number(slider.getAttribute('aria-valuenow') || '0');
+                if (e.key === 'ArrowUp') { setLevel(now + 1); e.preventDefault(); }
+                else if (e.key === 'ArrowDown') { setLevel(now - 1); e.preventDefault(); }
+                else if (e.key === 'Home') { setLevel(0); e.preventDefault(); }
+                else if (e.key === 'End') { setLevel(NUM_LEVELS - 1); e.preventDefault(); }
+                disableVHint();
+            });
+
+            // Init at 0%
+            setLevel(0);
+            // Start hint loop after a small delay
+            setTimeout(() => { if (hintHand) { positionHintAtPercent(0); animateVHint(); } }, 400);
+        })();
 
         function getSvgPathForDb(db) {
             // db is integer 0..44 step 4

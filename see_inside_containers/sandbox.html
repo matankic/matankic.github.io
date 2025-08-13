@@ -1736,39 +1736,13 @@
                     if (p < 0.999 && vHintRunning) {
                         vHintRafId = requestAnimationFrame(frame);
                     } else {
-                        // Second loop immediately
-                        const start2 = performance.now();
-                        function frame2(now2) {
-                            if (!vHintLoopActive) {
-                                vHintRunning = false;
-                                hintHand.classList.remove('visible');
-                                return;
-                            }
-                            const p2 = Math.min(0.999, (now2 - start2) / totalDur);
-                            const segFloat2 = p2 * segments;
-                            const seg2 = Math.floor(segFloat2);
-                            const localT2 = segFloat2 - seg2;
-                            const eased2 = easeOutCubic(localT2);
-                            let percent2;
-                            if (seg2 % 2 === 0) {
-                                percent2 = 60 * eased2;
-                            } else {
-                                percent2 = 60 * (1 - eased2);
-                            }
-                            positionHintAtPercent(percent2);
-                            if (p2 < 0.999) {
-                                vHintRafId = requestAnimationFrame(frame2);
-                            } else {
-                                // Snap to 0%, fade out, then wait 3s and restart
-                                positionHintAtPercent(0);
-                                vHintRunning = false;
-                                setTimeout(() => {
-                                    hintHand.classList.remove('visible');
-                                    setTimeout(() => { if (vHintLoopActive) animateVHint(); }, 3000);
-                                }, 50);
-                            }
-                        }
-                        vHintRafId = requestAnimationFrame(frame2);
+                        // Complete after one up/down cycle, then fade and loop later (2 rounds total overall)
+                        positionHintAtPercent(0);
+                        vHintRunning = false;
+                        setTimeout(() => {
+                            hintHand.classList.remove('visible');
+                            setTimeout(() => { if (vHintLoopActive) animateVHint(); }, 3000);
+                        }, 50);
                     }
                 }
                 vHintRafId = requestAnimationFrame(frame);

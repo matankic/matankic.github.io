@@ -830,7 +830,7 @@
         .source-btn.ambient.active { border-color: #c62828; color: #c62828; background: #ffe9e9; }
 
         /* Global source selector placement */
-        .global-source-wrap { display: flex; align-items: center; justify-content: center; margin: 10px 0 6px; }
+        .global-source-wrap { display: flex; align-items: center; justify-content: center; gap: 12px; margin: 10px 0 6px; }
     </style>
     <script>
         function toggleAudio(audioId, button) {
@@ -1411,6 +1411,7 @@
 
             <!-- Vertical slider: centered, blue accent, 6 discrete levels -->
             <div class="global-source-wrap">
+                <div class="title" style="font-size: 0.95em; font-weight: 600; color: #333;">Excitation Source:</div>
                 <div class="source-group" id="sourceGroupGlobal" role="group" aria-label="Sound source">
                     <button class="source-btn chirp" data-src="chirp" type="button">Chirp</button>
                     <button class="source-btn song active" data-src="song" type="button">Song</button>

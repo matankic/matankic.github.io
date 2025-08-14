@@ -34,7 +34,7 @@
         }
         
         body {
-            padding-top: 50px; /* Add space for the fixed banner */
+            padding-top: 0;
         }
         
         .container {
@@ -673,6 +673,8 @@
             margin: 16px 0 26px;
         }
 
+        .dual-panels { display: flex; gap: 120px; justify-content: center; align-items: flex-end; flex-wrap: wrap; }
+
         .v-slider-row {
             display: flex;
             align-items: flex-end; /* align bottoms of slider and image */
@@ -831,6 +833,22 @@
 
         /* Global source selector placement */
         .global-source-wrap { display: flex; align-items: center; justify-content: center; gap: 12px; margin: 10px 0 6px; }
+
+        /* Left panel (milk) wine-purple accent overrides */
+        #vSliderL .v-track {
+            background: linear-gradient(180deg, #fae7ef 0%, #f3cfdb 100%);
+            box-shadow: inset 0 0 0 1px rgba(123, 30, 61, 0.22);
+        }
+        #vWaterL {
+            background: linear-gradient(180deg, #cc4c77 0%, #7b1e3d 70%);
+            box-shadow: inset 0 -2px 6px rgba(0,0,0,0.12), 0 0 0 1px rgba(123,30,61,0.28);
+        }
+        #vThumbL {
+            background: #7b1e3d;
+            box-shadow: 0 4px 10px rgba(123,30,61,0.38);
+        }
+        #vTicksL .v-tick { background: rgba(123,30,61,0.5); }
+        #vValueL { color: #7b1e3d; background: #fae7ef; border-color: rgba(123,30,61,0.35); }
     </style>
     <script>
         function toggleAudio(audioId, button) {
@@ -913,10 +931,10 @@
             }
         }
 
-        // Rotary knob logic
+        // (volume knob removed)
         document.addEventListener('DOMContentLoaded', function() {
-            const wrapper = document.getElementById('volumeKnob');
-            if (!wrapper) return;
+            const wrapper = null; // removed
+            if (false) return;
 
             const knob = wrapper.querySelector('.rotary-knob');
             const angleLayer = knob.querySelector('.rotary-angle');
@@ -1010,14 +1028,7 @@
                 // Also update background sine tone volume
                 try { setSineVolume(adjustedVolume); } catch (e) {}
 
-                // Update speckle vibration GIF
-                const speckleGif = document.getElementById('speckleGif');
-                if (speckleGif && clamped > 0) {
-                    speckleGif.src = `SNR_experiment/speckle_vibration_fast_level_${clamped}.gif`;
-                } else if (speckleGif) {
-                    // For OFF level, show level 1 GIF
-                    speckleGif.src = `SNR_experiment/speckle_vibration_fast_level_1.gif`;
-                }
+                // (gif removed)
 
                 // a11y
                 wrapper.setAttribute('aria-valuenow', String(clamped));
@@ -1095,10 +1106,7 @@
                 wrapper.releasePointerCapture?.(e.pointerId);
             }
 
-            // Click/drag support
-            wrapper.addEventListener('pointerdown', onPointerDown);
-            window.addEventListener('pointermove', onPointerMove);
-            window.addEventListener('pointerup', onPointerUp);
+            // (removed knob listeners)
 
             // Keyboard support
             wrapper.addEventListener('keydown', (e) => {
@@ -1119,6 +1127,7 @@
             });
 
             // Toggle OFF/4 dB on counter click to avoid confusion when clicking OFF
+            /*
             labelEl.addEventListener('click', () => {
                 const current = Number(wrapper.dataset.level || '0');
                 if (current === 0) setLevel(1); // OFF -> 4 dB
@@ -1126,9 +1135,10 @@
                 try { initSineIfNeeded(); } catch (e) {}
                 disableHint();
             });
+            */
 
             // Initialize OFF and ensure label reads OFF
-            setLevel(0);
+            // setLevel(0); // not used anymore
 
             // Show a short animated hint: move along the arc continuously (fwd -> back -> fwd -> back)
             let hintRunning = false;
@@ -1238,17 +1248,13 @@
                     onScrollCheck();
                 }
             }
-            scheduleHintWhenVisible();
+            // scheduleHintWhenVisible(); // not used
 
 
         });
     </script>
 </head>
     <body>
-    <div class="construction-banner">
-        <span>🚧 This site is currently under construction 🚧</span>
-        <a href="https://docs.google.com/presentation/d/1IsvBgHMULgZZm53PUlgLLP5zfGBwE-kbsnOzOsB6TmA/edit?usp=sharing" target="_blank" rel="noopener" style="margin-left: 12px; color: #209cee; text-decoration: underline;">link to the presentation</a>
-    </div>
     <div class="container">
         <div class="header">
             <h1 class="title">Learning to See Inside Opaque Liquid Containers using Speckle Vibrometry</h1>
@@ -1363,64 +1369,50 @@
 
 
         <div class="section">
-            <div class="snr-figure-container">
-                <img src="SNR_experiment/SNR_figure.png" alt="SNR Figure" class="snr-figure" />
-                <div class="gif-overlay">
-                    <img src="SNR_experiment/speckle_vibration_fast_level_1.gif" alt="Speckle Vibration" class="gif-profile" id="speckleGif" />
-                </div>
-            </div>
+            
 
-            <div class="controller-row">
-                <div class="volume-control" aria-hidden="false">
-                    <div class="rotary-wrapper" id="volumeKnob" role="slider" aria-label="Speaker volume" aria-valuemin="0" aria-valuemax="11" aria-valuenow="0" tabindex="0">
-                        <div class="ticks"></div>
-                        <div class="rotary-knob">
-                            <div class="rotary-angle" style="transform: rotate(-120deg);">
-                                <div class="rotary-indicator"></div>
-                            </div>
-                        </div>
-                        <!-- hint hand icon -->
-                        <svg class="hint-hand" id="hintHand" viewBox="0 0 64 64" aria-hidden="true">
-                            <path fill="#ffffff" stroke="#bbb" d="M20 30v-8a4 4 0 0 1 8 0v8h2v-10a4 4 0 0 1 8 0v10h2v-8a4 4 0 0 1 8 0v16c0 7-5 12-12 12h-6c-7 0-12-5-12-12v-8z"/>
-                            <circle cx="26" cy="50" r="2" fill="#bbb"/>
-                        </svg>
-                    </div>
-                    <div class="volume-readout">
-                        <div class="title">Speaker Volume</div>
-                        <button class="volume-label" id="volumeLabel" type="button" aria-live="polite">OFF</button>
-                    </div>
-                </div>
-
-                <div class="signal-panel">
-                    <div class="signal-card">
-                        <div class="signal-viewport">
-                            <div class="signal-strip" id="signalStrip" style="--scroll-duration: 8s;">
-                                <div class="signal-frame"><img id="sigImg1" class="signal-img" alt="signal A" /></div>
-                                <div class="signal-frame"><img id="sigImg2" class="signal-img" alt="signal B" /></div>
-                            </div>
-                        </div>
-                        <div class="signal-footer">
-                            <div class="signal-meta" id="signalMeta">SNR: 0 dB</div>
-                            <div class="signal-meta">Recovered signal from vibrations</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            
 
             <h1 class="subtitle">I'm intrigued—tell me (a little) more?</h1>
             <p>First, we must capture these tiny surface vibrations at high speeds. To achieve this, we develop a novel computational imaging system that can capture object vibrations remotely for a 2D grid of scene points. </p>
 
-            <!-- Vertical slider: centered, blue accent, 6 discrete levels -->
-            <div class="global-source-wrap">
-                <div class="title" style="font-size: 0.95em; font-weight: 600; color: #333;">Excitation Source:</div>
-                <div class="source-group" id="sourceGroupGlobal" role="group" aria-label="Sound source">
-                    <button class="source-btn chirp" data-src="chirp" type="button">Chirp</button>
-                    <button class="source-btn song active" data-src="song" type="button">Song</button>
-                    <button class="source-btn ambient" data-src="ambient" type="button">Ambient</button>
-                </div>
-            </div>
-
+            <div class="dual-panels">
+            <!-- Left panel: milk only, no source selector inside -->
             <div class="v-slider-section" aria-hidden="false">
+                <div class="v-slider-row">
+                    <div class="v-slider-col">
+                        <div class="v-slider" id="vSliderL" role="slider" aria-orientation="vertical" aria-valuemin="0" aria-valuemax="5" aria-valuenow="0" tabindex="0">
+                        <div class="v-track"></div>
+                        <div class="v-water" id="vWaterL"></div>
+                        <div class="v-ticks" id="vTicksL"></div>
+                        <div class="v-thumb" id="vThumbL" aria-hidden="true"></div>
+                        <svg class="v-hint-hand" id="vHintHandL" viewBox="0 0 64 64" aria-hidden="true">
+                            <path fill="#ffffff" stroke="#bbb" d="M20 30v-8a4 4 0 0 1 8 0v8h2v-10a4 4 0 0 1 8 0v10h2v-8a4 4 0 0 1 8 0v16c0 7-5 12-12 12h-6c-7 0-12-5-12-12v-8z"/>
+                            <circle cx="26" cy="50" r="2" fill="#bbb"/>
+                        </svg>
+                    </div>
+                        <div class="v-slider-label">Fill Level</div>
+                        <div class="v-value" id="vValueL">0%</div>
+                    </div>
+                    <div class="v-preview-col">
+                        <img id="vPreviewL" class="v-preview-img" alt="fill level preview" />
+                        <button class="pushable pushable-inline" id="vPlayBtnL" type="button">
+                            <span class="front">▶</span>
+                        </button>
+                    </div>
+                    </div>
+                </div>
+
+            <!-- Right panel: existing with milk and coke -->
+            <div class="v-slider-section" aria-hidden="false">
+                <div class="global-source-wrap">
+                    <div class="title" style="font-size: 0.95em; font-weight: 600; color: #333;">Excitation Source:</div>
+                    <div class="source-group" id="sourceGroupGlobal" role="group" aria-label="Sound source">
+                        <button class="source-btn chirp" data-src="chirp" type="button">Chirp</button>
+                        <button class="source-btn song active" data-src="song" type="button">Song</button>
+                        <button class="source-btn ambient" data-src="ambient" type="button">Ambient</button>
+                    </div>
+                </div>
                 <div class="v-slider-row">
                     <div class="v-slider-col">
                         <div class="v-slider" id="vSlider" role="slider" aria-orientation="vertical" aria-valuemin="0" aria-valuemax="5" aria-valuenow="0" tabindex="0">
@@ -1433,16 +1425,16 @@
                             <path fill="#ffffff" stroke="#bbb" d="M20 30v-8a4 4 0 0 1 8 0v8h2v-10a4 4 0 0 1 8 0v10h2v-8a4 4 0 0 1 8 0v16c0 7-5 12-12 12h-6c-7 0-12-5-12-12v-8z"/>
                             <circle cx="26" cy="50" r="2" fill="#bbb"/>
                         </svg>
-                        </div>
+                            </div>
                         <div class="v-slider-label">Fill Level</div>
                         <div class="v-value" id="vValue">0%</div>
-                    </div>
+                        </div>
                     <div class="v-preview-col">
                         <img id="vPreview" class="v-preview-img" alt="fill level preview" />
                         <button class="pushable pushable-inline" id="vPlayBtn" type="button">
                             <span class="front">▶</span>
                         </button>
-                    </div>
+                        </div>
                     <div class="v-preview-col">
                         <img id="vPreviewCoke" class="v-preview-img" alt="coke fill level preview" />
                         <button class="pushable pushable-inline" id="vPlayBtnCoke" type="button">
@@ -1450,6 +1442,7 @@
                         </button>
                     </div>
                 </div>
+            </div>
             </div>
             <p>We use our system to sense the vibrations of multiple scene containers at once, while we "excite" the vibrations using a nearby speaker by playing some <span onclick="toggleAudio('neveerGonnaGiveYouUp', this)" style="color: #209cee; font-weight:bold; cursor: pointer;">sound</span>.</p>
             <div style="height: 20px;"></div>
@@ -1551,14 +1544,21 @@
     </div>
 
     <script>
-        // ---------------- File:// SVG scroller wiring ----------------
-        const signalStrip = document.getElementById('signalStrip');
-        const sigImg1 = document.getElementById('sigImg1');
-        const sigImg2 = document.getElementById('sigImg2');
-        const metaEl = document.getElementById('signalMeta');
+        // (signal panel removed)
 
         // ---------------- Vertical discrete slider (6 levels) ----------------
         (function initVerticalSlider(){
+            // Left panel elements
+            const sliderL = document.getElementById('vSliderL');
+            const thumbL = document.getElementById('vThumbL');
+            const waterL = document.getElementById('vWaterL');
+            const ticksWrapL = document.getElementById('vTicksL');
+            const valueElL = document.getElementById('vValueL');
+            const hintHandL = document.getElementById('vHintHandL');
+            const previewImgL = document.getElementById('vPreviewL');
+            const playBtnL = document.getElementById('vPlayBtnL');
+
+            // Right panel elements
             const slider = document.getElementById('vSlider');
             const thumb = document.getElementById('vThumb');
             const water = document.getElementById('vWater');
@@ -1574,14 +1574,19 @@
             const NUM_LEVELS = 6; // 0..5 → {0,20,40,60,80,100}%
             const toPercent = (level)=> level * 20; // level index to display percent
 
-            // Build ticks at fixed positions (0..100%) from bottom
-            for (let i = 0; i < NUM_LEVELS; i++) {
-                const tick = document.createElement('div');
-                tick.className = 'v-tick';
-                const pct = (i / (NUM_LEVELS - 1)) * 100; // 0..100
-                tick.style.bottom = `${pct}%`;
-                ticksWrap.appendChild(tick);
+            function buildTicks(container) {
+                if (!container) return;
+                container.innerHTML = '';
+                for (let i = 0; i < NUM_LEVELS; i++) {
+                    const tick = document.createElement('div');
+                    tick.className = 'v-tick';
+                    const pct = (i / (NUM_LEVELS - 1)) * 100; // 0..100
+                    tick.style.bottom = `${pct}%`;
+                    container.appendChild(tick);
+                }
             }
+            buildTicks(ticksWrap);
+            buildTicks(ticksWrapL);
 
             function imageForLevel(levelIndex) {
                 const pct = levelIndex * 20; // 0..100
@@ -1591,6 +1596,11 @@
             function cokeImageForLevel(levelIndex) {
                 const pct = levelIndex * 20; // 0..100
                 return `images/lvl${pct}_coke.png`;
+            }
+
+            function wineImageForLevel(levelIndex) {
+                const pct = levelIndex * 20; // 0..100
+                return `images/lvl${pct}_wine.png`;
             }
 
             function audioIdForLevel(levelIndex) {
@@ -1627,6 +1637,7 @@
                 try {
                     playBtn?.classList.remove('playing');
                     playBtnCoke?.classList.remove('playing');
+                    playBtnL?.classList.remove('playing');
                 } catch (e) {}
             }
 
@@ -1643,31 +1654,29 @@
             }
             attachEndedHandlersOnce();
 
-            function setLevel(level) {
+            function setLevelCommon(sliderEl, thumbEl, waterEl, valueElEl, previewEl, level) {
                 const clamped = Math.max(0, Math.min(NUM_LEVELS - 1, level));
                 const pct = (clamped / (NUM_LEVELS - 1)) * 100;
-                thumb.style.bottom = `${pct}%`;
-                valueEl.textContent = `${toPercent(clamped)}%`;
-                slider.setAttribute('aria-valuenow', String(clamped));
+                thumbEl.style.bottom = `${pct}%`;
+                valueElEl.textContent = `${toPercent(clamped)}%`;
+                sliderEl.setAttribute('aria-valuenow', String(clamped));
                 // Update water height to match track percentage
-                const rect = slider.getBoundingClientRect();
+                const rect = sliderEl.getBoundingClientRect();
                 const trackTop = 10;  // per CSS
                 const trackBottom = 10; // per CSS
                 const trackHeight = rect.height - (trackTop + trackBottom);
                 const waterHeightPx = (pct / 100) * trackHeight;
-                water.style.height = `${waterHeightPx}px`;
+                waterEl.style.height = `${waterHeightPx}px`;
 
                 // Update preview image to match discrete level
-                if (previewImg) {
-                    previewImg.src = imageForLevel(clamped);
-                }
-                if (previewCoke) {
-                    previewCoke.src = cokeImageForLevel(clamped);
-                }
+                if (previewEl) previewEl.src = imageForLevel(clamped);
             }
 
-            function clientYToLevel(clientY) {
-                const rect = slider.getBoundingClientRect();
+            function setLevel(level) { setLevelCommon(slider, thumb, water, valueEl, previewImg, level); if (previewCoke) previewCoke.src = cokeImageForLevel(Math.max(0, Math.min(NUM_LEVELS - 1, level))); }
+            function setLevelL(level) { const clamped = Math.max(0, Math.min(NUM_LEVELS - 1, level)); setLevelCommon(sliderL, thumbL, waterL, valueElL, previewImgL, clamped); if (previewImgL) previewImgL.src = wineImageForLevel(clamped); }
+
+            function clientYToLevel(sliderEl, clientY) {
+                const rect = sliderEl.getBoundingClientRect();
                 const trackTop = rect.top + 10;   // from CSS .v-track top
                 const trackBottom = rect.bottom - 10; // from CSS .v-track bottom
                 const trackHeight = trackBottom - trackTop;
@@ -1677,44 +1686,47 @@
                 return raw; // return float for continuous feel
             }
 
-            let dragging = false;
-            let currentFloat = 0; // track float while dragging
-            let lastDragNearestLevel = null; // track nearest discrete level while dragging
+            let dragging = false, draggingL = false;
+            let currentFloat = 0, currentFloatL = 0;
+            let lastDragNearestLevel = null, lastDragNearestLevelL = null;
 
             // --- Hint loop: show hand moving 0% -> 60% -> 0%, twice, then fade and wait 3s ---
             let vHintLoopActive = true;
             let vHintRunning = false;
             let vHintRafId = 0;
 
-            function positionHintAtPercent(percent) {
-                if (!hintHand) return;
-                const rect = slider.getBoundingClientRect();
+            function positionHintAtPercent(hand, sliderEl, percent) {
+                if (!hand) return;
+                const rect = sliderEl.getBoundingClientRect();
                 const trackHeight = rect.height - 20; // 10 top + 10 bottom
                 const bottomPx = 10 + (Math.max(0, Math.min(100, percent)) / 100) * trackHeight;
-                hintHand.style.bottom = `${bottomPx}px`;
+                hand.style.bottom = `${bottomPx}px`;
             }
 
             function easeOutCubic(t) { return 1 - Math.pow(1 - t, 3); }
 
-            function animateVHint() {
-                if (!hintHand || !vHintLoopActive) return;
-                if (vHintRunning) return;
+            function animateBothHints(hands, sliders) {
+                const activeHands = hands.filter(Boolean);
+                const activeSliders = sliders.filter(Boolean);
+                if (activeHands.length === 0 || activeSliders.length === 0) return;
+                if (!vHintLoopActive || vHintRunning) return;
                 vHintRunning = true;
 
-                // Place at 0% before showing
-                positionHintAtPercent(0);
-                hintHand.classList.add('visible');
+                // Place both at 0% and show
+                for (let i = 0; i < Math.min(activeHands.length, activeSliders.length); i++) {
+                    positionHintAtPercent(activeHands[i], activeSliders[i], 0);
+                    activeHands[i].classList.add('visible');
+                }
 
-                const baseDur = 900; // ms per segment
+                const baseDur = 1350; // ms per segment (50% slower)
                 const segments = 4;  // up, down, up, down
                 const totalDur = baseDur * segments;
                 const startTime = performance.now();
 
                 function frame(now) {
-                    // stop if disabled mid-animation
                     if (!vHintLoopActive) {
                         vHintRunning = false;
-                        hintHand.classList.remove('visible');
+                        activeHands.forEach(h => h.classList.remove('visible'));
                         return;
                     }
                     const p = Math.min(0.999, (now - startTime) / totalDur);
@@ -1723,26 +1735,27 @@
                     const localT = segFloat - seg; // 0..1
                     const eased = easeOutCubic(localT);
 
-                    // 0% <-> 60% path
                     let percent;
                     if (seg % 2 === 0) {
-                        // forward: 0 -> 60
-                        percent = 60 * eased;
+                        percent = 60 * eased;      // forward 0 -> 60
                     } else {
-                        // back: 60 -> 0
-                        percent = 60 * (1 - eased);
+                        percent = 60 * (1 - eased); // back 60 -> 0
                     }
-                    positionHintAtPercent(percent);
+                    for (let i = 0; i < Math.min(activeHands.length, activeSliders.length); i++) {
+                        positionHintAtPercent(activeHands[i], activeSliders[i], percent);
+                    }
 
                     if (p < 0.999 && vHintRunning) {
                         vHintRafId = requestAnimationFrame(frame);
                     } else {
-                        // Complete after one up/down cycle, then fade and loop later (2 rounds total overall)
-                        positionHintAtPercent(0);
+                        // Finish cycle, fade both, then restart after delay
+                        for (let i = 0; i < Math.min(activeHands.length, activeSliders.length); i++) {
+                            positionHintAtPercent(activeHands[i], activeSliders[i], 0);
+                        }
                         vHintRunning = false;
                         setTimeout(() => {
-                            hintHand.classList.remove('visible');
-                            setTimeout(() => { if (vHintLoopActive) animateVHint(); }, 3000);
+                            activeHands.forEach(h => h.classList.remove('visible'));
+                            setTimeout(() => { if (vHintLoopActive) animateBothHints(activeHands, activeSliders); }, 3000);
                         }, 50);
                     }
                 }
@@ -1754,13 +1767,14 @@
                 if (vHintRunning && vHintRafId) cancelAnimationFrame(vHintRafId);
                 vHintRunning = false;
                 hintHand?.classList.remove('visible');
+                hintHandL?.classList.remove('visible');
             }
 
             function onPointerDown(e) {
                 dragging = true;
                 slider.classList.add('dragging');
                 slider.setPointerCapture?.(e.pointerId);
-                currentFloat = clientYToLevel(e.clientY);
+                currentFloat = clientYToLevel(slider, e.clientY);
                 // live position during drag
                 const pct = (currentFloat / (NUM_LEVELS - 1)) * 100;
                 thumb.style.bottom = `${pct}%`;
@@ -1772,6 +1786,9 @@
                 // Init lastDragNearestLevel and release play state
                 const nearest = Math.max(0, Math.min(NUM_LEVELS - 1, Math.round(currentFloat)));
                 lastDragNearestLevel = nearest;
+                // live update label and aria while dragging
+                valueEl.textContent = `${toPercent(nearest)}%`;
+                slider.setAttribute('aria-valuenow', String(nearest));
                 releaseButtons();
                 stopAllLevelAudios();
                 // Live preview update (nearest discrete level)
@@ -1779,13 +1796,16 @@
                     previewImg.src = imageForLevel(nearest);
                 }
                 e.preventDefault();
-                // stop hint loop on first interaction
-                disableVHint();
+                // hide only the associated hint on interaction
+                try {
+                    const h = document.getElementById('vHintHand');
+                    if (h) { h.classList.remove('visible'); h.__loopActive = false; }
+                } catch (e) {}
             }
 
             function onPointerMove(e) {
                 if (!dragging) return;
-                currentFloat = clientYToLevel(e.clientY);
+                currentFloat = clientYToLevel(slider, e.clientY);
                 const pct = (currentFloat / (NUM_LEVELS - 1)) * 100;
                 thumb.style.bottom = `${pct}%`;
                 // Live water update during drag
@@ -1797,6 +1817,9 @@
                 if (previewImg) {
                     const nearest = Math.max(0, Math.min(NUM_LEVELS - 1, Math.round(currentFloat)));
                     previewImg.src = imageForLevel(nearest);
+                    // live update label and aria while dragging
+                    valueEl.textContent = `${toPercent(nearest)}%`;
+                    slider.setAttribute('aria-valuenow', String(nearest));
                     // If discrete level changed mid-drag, release both play buttons and stop audio
                     if (lastDragNearestLevel === null || nearest !== lastDragNearestLevel) {
                         lastDragNearestLevel = nearest;
@@ -1824,6 +1847,63 @@
             window.addEventListener('pointermove', onPointerMove, { passive: true });
             window.addEventListener('pointerup', onPointerUp);
 
+            // Left panel interactions
+            function onPointerDownL(e) {
+                draggingL = true;
+                sliderL.classList.add('dragging');
+                sliderL.setPointerCapture?.(e.pointerId);
+                currentFloatL = clientYToLevel(sliderL, e.clientY);
+                const pct = (currentFloatL / (NUM_LEVELS - 1)) * 100;
+                thumbL.style.bottom = `${pct}%`;
+                const rect = sliderL.getBoundingClientRect();
+                const trackHeight = rect.height - 20;
+                waterL.style.height = `${(pct / 100) * trackHeight}px`;
+                const nearest = Math.max(0, Math.min(NUM_LEVELS - 1, Math.round(currentFloatL)));
+                lastDragNearestLevelL = nearest;
+                releaseButtons();
+                stopAllLevelAudios();
+                if (previewImgL) previewImgL.src = wineImageForLevel(nearest);
+                // live update left label and aria while dragging
+                valueElL.textContent = `${toPercent(nearest)}%`;
+                sliderL.setAttribute('aria-valuenow', String(nearest));
+                e.preventDefault();
+                // hide only the associated hint on interaction
+                try {
+                    const h = document.getElementById('vHintHandL');
+                    if (h) { h.classList.remove('visible'); h.__loopActive = false; }
+                } catch (e2) {}
+            }
+            function onPointerMoveL(e) {
+                if (!draggingL) return;
+                currentFloatL = clientYToLevel(sliderL, e.clientY);
+                const pct = (currentFloatL / (NUM_LEVELS - 1)) * 100;
+                thumbL.style.bottom = `${pct}%`;
+                const rect = sliderL.getBoundingClientRect();
+                const trackHeight = rect.height - 20;
+                waterL.style.height = `${(pct / 100) * trackHeight}px`;
+                const nearest = Math.max(0, Math.min(NUM_LEVELS - 1, Math.round(currentFloatL)));
+                if (previewImgL) previewImgL.src = wineImageForLevel(nearest);
+                // live update left label and aria while dragging
+                valueElL.textContent = `${toPercent(nearest)}%`;
+                sliderL.setAttribute('aria-valuenow', String(nearest));
+                if (lastDragNearestLevelL === null || nearest !== lastDragNearestLevelL) {
+                    lastDragNearestLevelL = nearest;
+                    releaseButtons();
+                    stopAllLevelAudios();
+                }
+            }
+            function onPointerUpL(e) {
+                if (!draggingL) return;
+                draggingL = false;
+                sliderL.classList.remove('dragging');
+                sliderL.releasePointerCapture?.(e.pointerId);
+                const snapped = Math.round(currentFloatL);
+                setLevelL(snapped);
+            }
+            sliderL?.addEventListener('pointerdown', onPointerDownL);
+            window.addEventListener('pointermove', onPointerMoveL, { passive: true });
+            window.addEventListener('pointerup', onPointerUpL);
+
             // Keyboard: ArrowUp/Down to move between 6 levels
             slider.addEventListener('keydown', (e) => {
                 const now = Number(slider.getAttribute('aria-valuenow') || '0');
@@ -1832,13 +1912,51 @@
                 else if (e.key === 'ArrowDown') { releaseAndStop(); setLevel(now - 1); e.preventDefault(); }
                 else if (e.key === 'Home') { releaseAndStop(); setLevel(0); e.preventDefault(); }
                 else if (e.key === 'End') { releaseAndStop(); setLevel(NUM_LEVELS - 1); e.preventDefault(); }
-                disableVHint();
+                try {
+                    const h = document.getElementById('vHintHand');
+                    if (h) { h.classList.remove('visible'); h.__loopActive = false; }
+                } catch (e2) {}
             });
 
             // Init at 0%
             setLevel(0);
-            // Start hint loop after a small delay
-            setTimeout(() => { if (hintHand) { positionHintAtPercent(0); animateVHint(); } }, 400);
+            setLevelL(0);
+            // Start independent hint loops (not synchronized)
+            function animateSingleHint(hand, sliderEl){
+                if (!hand || !sliderEl) return;
+                if (hand.__running) return;
+                if (hand.__loopActive === false) return;
+                hand.__loopActive = true;
+                hand.__running = true;
+                positionHintAtPercent(hand, sliderEl, 0);
+                hand.classList.add('visible');
+                const baseDur = 1350; // 50% slower
+                const segments = 4;  // up, down, up, down
+                const totalDur = baseDur * segments;
+                const startTime = performance.now();
+                function frame(now){
+                    if (hand.__loopActive === false) { hand.__running = false; hand.classList.remove('visible'); return; }
+                    const p = Math.min(0.999, (now - startTime) / totalDur);
+                    const seg = Math.floor(p * segments);
+                    const localT = p * segments - seg;
+                    const eased = easeOutCubic(localT);
+                    const percent = (seg % 2 === 0) ? 60 * eased : 60 * (1 - eased);
+                    positionHintAtPercent(hand, sliderEl, percent);
+                    if (p < 0.999 && hand.__loopActive !== false) {
+                        hand.__rafId = requestAnimationFrame(frame);
+                    } else {
+                        positionHintAtPercent(hand, sliderEl, 0);
+                        hand.__running = false;
+                        setTimeout(() => {
+                            hand.classList.remove('visible');
+                            setTimeout(() => { if (hand.__loopActive !== false) animateSingleHint(hand, sliderEl); }, 3000);
+                        }, 50);
+                    }
+                }
+                hand.__rafId = requestAnimationFrame(frame);
+            }
+            setTimeout(() => { animateSingleHint(hintHand, slider); }, 400);
+            setTimeout(() => { animateSingleHint(hintHandL, sliderL); }, 500);
 
             // Wire play button: play corresponding level audio and keep pressed until audio ends
             if (playBtn) {
@@ -1874,6 +1992,45 @@
                     } else {
                         // Already playing: just transfer pressed state to this button
                         playBtn.classList.add('playing');
+                    }
+                });
+            }
+
+            // Left panel play button (milk only)
+            if (playBtnL) {
+                playBtnL.addEventListener('click', () => {
+                    attachEndedHandlersOnce();
+                    if (playBtnL.classList.contains('playing')) {
+                        stopAllLevelAudios();
+                        releaseButtons();
+                        return;
+                    }
+                    releaseButtons();
+                    const level = Number(sliderL.getAttribute('aria-valuenow') || '0');
+                    const audioId = audioIdForLevel(level);
+                    try {
+                        for (let i = 0; i < 6; i++) {
+                            const a = document.getElementById(`audio${i}`);
+                            if (!a) continue;
+                            a.pause(); a.currentTime = 0;
+                        }
+                    } catch (e) {}
+                    const audioEl = document.getElementById(audioId);
+                    if (!audioEl) return;
+                    try { audioEl.muted = false; audioEl.volume = 1.0; } catch (e) {}
+                    if (audioEl.paused) {
+                        audioEl.currentTime = 0;
+                        const p = audioEl.play();
+                        if (p && typeof p.catch === 'function') p.catch(() => {});
+                        playBtnL.classList.add('playing');
+                        audioEl.addEventListener('ended', function onEnd(){
+                            playBtnL.classList.remove('playing');
+                            audioEl.removeEventListener('ended', onEnd);
+                        });
+                    } else {
+                        audioEl.pause();
+                        audioEl.currentTime = 0;
+                        playBtnL.classList.remove('playing');
                     }
                 });
             }
@@ -1917,50 +2074,7 @@
             }
         })();
 
-        function getSvgPathForDb(db) {
-            // db is integer 0..44 step 4
-            return `SNR_experiment/${db}dB.svg`;
-        }
-
-        const SNR_BY_DB = {
-            0: "-29.18",
-            4: "-14.11",
-            8: "-6.988",
-            12: "-5.517",
-            16: "-1.554",
-            20: "3.125",
-            24: "8.203",
-            28: "11.85",
-            32: "15.5",
-            36: "19.27",
-            40: "23.04",
-            44: "25.85"
-        };
-
-        function setSignalForDb(db) {
-            const url = getSvgPathForDb(db);
-            sigImg1.src = url;
-            sigImg2.src = url;
-            const mapped = SNR_BY_DB[db] ?? String(db);
-            metaEl.textContent = `SNR: ${mapped} dB`;
-        }
-
-        // Speed mapping: higher dB scrolls a bit faster
-        function setScrollSpeedForDb(db) {
-            const base = 10; // seconds
-            const speed = Math.max(5, base - db * 0.1); // 0dB ~10s, 44dB ~5.6s
-            signalStrip.style.setProperty('--scroll-duration', `${speed}s`);
-        }
-
-        function updateSignalFromLevel(levelIndex) {
-            const db = Math.max(0, Math.min(11, levelIndex)) * 4;
-            setSignalForDb(db);
-            setScrollSpeedForDb(db);
-        }
-
-        // Initial signal (OFF -> 0 dB)
-        setSignalForDb(0);
-        setScrollSpeedForDb(0);
+        // (signal panel removed)
     </script>
 </body>
 </html>

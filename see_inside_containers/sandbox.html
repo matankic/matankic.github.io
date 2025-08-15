@@ -1635,6 +1635,20 @@
                 return __dynamicAudio;
             }
 
+            // Static audio (no source dimension) for left wine glass
+            function playWineAudio(levelIndex) {
+                const clamped = Math.max(0, Math.min(NUM_LEVELS - 1, levelIndex));
+                const pct = toPercent(clamped);
+                const url = `audios/lvl${pct}_wine.wav`;
+                if (!__dynamicAudio) __dynamicAudio = new Audio();
+                try { __dynamicAudio.pause(); } catch (e) {}
+                __dynamicAudio.src = url;
+                try { __dynamicAudio.muted = false; __dynamicAudio.volume = 1.0; } catch (e) {}
+                const p = __dynamicAudio.play();
+                if (p && typeof p.catch === 'function') p.catch(() => {});
+                return __dynamicAudio;
+            }
+
             // Manage a single global source selection (song default)
             (function setupGlobalSource(){
                 const group = document.getElementById('sourceGroupGlobal');
@@ -2018,42 +2032,17 @@
                 });
             }
 
-            // Left panel play button (milk only)
+            // Left panel play button → play audios/lvl{x}_wine.wav (no source dimension)
             if (playBtnL) {
                 playBtnL.addEventListener('click', () => {
                     attachEndedHandlersOnce();
-                    if (playBtnL.classList.contains('playing')) {
-                        stopAllLevelAudios();
-                        releaseButtons();
-                        return;
-                    }
+                    if (playBtnL.classList.contains('playing')) { stopAllLevelAudios(); releaseButtons(); return; }
                     releaseButtons();
+                    stopAllLevelAudios();
                     const level = Number(sliderL.getAttribute('aria-valuenow') || '0');
-                    const audioId = audioIdForLevel(level);
-                    try {
-                        for (let i = 0; i < 6; i++) {
-                            const a = document.getElementById(`audio${i}`);
-                            if (!a) continue;
-                            a.pause(); a.currentTime = 0;
-                        }
-                    } catch (e) {}
-                    const audioEl = document.getElementById(audioId);
-                    if (!audioEl) return;
-                    try { audioEl.muted = false; audioEl.volume = 1.0; } catch (e) {}
-                    if (audioEl.paused) {
-                        audioEl.currentTime = 0;
-                        const p = audioEl.play();
-                        if (p && typeof p.catch === 'function') p.catch(() => {});
-                        playBtnL.classList.add('playing');
-                        audioEl.addEventListener('ended', function onEnd(){
-                            playBtnL.classList.remove('playing');
-                            audioEl.removeEventListener('ended', onEnd);
-                        });
-                    } else {
-                        audioEl.pause();
-                        audioEl.currentTime = 0;
-                        playBtnL.classList.remove('playing');
-                    }
+                    const a = playWineAudio(level);
+                    playBtnL.classList.add('playing');
+                    a.addEventListener('ended', function onEnd(){ playBtnL.classList.remove('playing'); a.removeEventListener('ended', onEnd); });
                 });
             }
 

@@ -1611,6 +1611,30 @@
                 return `audio${levelIndex}`; // audio0..audio5 → never_level{0|20|40|60|80|100}.wav
             }
 
+            // Dynamic audio by container/source/level
+            let __dynamicAudio = null;
+            function audioUrlFor(containerKey, levelIndex, sourceKey) {
+                const clamped = Math.max(0, Math.min(NUM_LEVELS - 1, levelIndex));
+                const pct = toPercent(clamped);
+                return `audios/lvl${pct}_${containerKey}_${sourceKey}.wav`;
+            }
+            function stopDynamicAudio() {
+                try {
+                    if (__dynamicAudio) { __dynamicAudio.pause(); __dynamicAudio.currentTime = 0; }
+                } catch (e) {}
+            }
+            function playDynamicAudio(containerKey, levelIndex) {
+                const sourceKey = (window.__globalSource || 'song');
+                const url = audioUrlFor(containerKey, levelIndex, sourceKey);
+                if (!__dynamicAudio) __dynamicAudio = new Audio();
+                try { __dynamicAudio.pause(); } catch (e) {}
+                __dynamicAudio.src = url;
+                try { __dynamicAudio.muted = false; __dynamicAudio.volume = 1.0; } catch (e) {}
+                const p = __dynamicAudio.play();
+                if (p && typeof p.catch === 'function') p.catch(() => {});
+                return __dynamicAudio;
+            }
+
             // Manage a single global source selection (song default)
             (function setupGlobalSource(){
                 const group = document.getElementById('sourceGroupGlobal');
@@ -1629,11 +1653,14 @@
 
             function stopAllLevelAudios() {
                 try {
+                    // Stop legacy mapped audios
                     for (let i = 0; i < 6; i++) {
                         const a = document.getElementById(`audio${i}`);
                         if (a) { a.pause(); a.currentTime = 0; }
                     }
                 } catch (e) {}
+                // Stop dynamic audio
+                stopDynamicAudio();
             }
 
             function releaseButtons() {
@@ -1974,44 +2001,20 @@
                 }
                 hand.__rafId = requestAnimationFrame(frame);
             }
-            setTimeout(() => { animateSingleHint(hintHand, slider); }, 400);
+            setTimeout(() => { animateSingleHint(hintHand, slider); }, 800);
             setTimeout(() => { animateSingleHint(hintHandL, sliderL); }, 500);
 
-            // Wire play button: play corresponding level audio and keep pressed until audio ends
+            // Wire play button (Oat): map to dynamic audios
             if (playBtn) {
                 playBtn.addEventListener('click', () => {
                     attachEndedHandlersOnce();
-                    // Toggle off if this button is already playing
-                    if (playBtn.classList.contains('playing')) {
-                        stopAllLevelAudios();
-                        releaseButtons();
-                        return;
-                    }
-                    // Always release visual states first
+                    if (playBtn.classList.contains('playing')) { stopAllLevelAudios(); releaseButtons(); return; }
                     releaseButtons();
+                    stopAllLevelAudios();
                     const level = Number(slider.getAttribute('aria-valuenow') || '0');
-                    const audioId = audioIdForLevel(level); // currently same for all sources
-                    const src = window.__globalSource || 'song';
-                    // Stop ALL level audios to interrupt previous playback
-                    try {
-                        for (let i = 0; i < 6; i++) {
-                            const a = document.getElementById(`audio${i}`);
-                            if (!a) continue;
-                            a.pause(); a.currentTime = 0;
-                        }
-                    } catch (e) {}
-                    const audioEl = document.getElementById(audioId);
-                    if (!audioEl) return;
-                    try { audioEl.muted = false; audioEl.volume = 1.0; } catch (e) {}
-                    if (audioEl.paused) {
-                        audioEl.currentTime = 0;
-                        const p = audioEl.play();
-                        if (p && typeof p.catch === 'function') p.catch(() => {});
-                        playBtn.classList.add('playing');
-                    } else {
-                        // Already playing: just transfer pressed state to this button
-                        playBtn.classList.add('playing');
-                    }
+                    const a = playDynamicAudio('oat', level);
+                    playBtn.classList.add('playing');
+                    a.addEventListener('ended', function onEnd(){ playBtn.classList.remove('playing'); a.removeEventListener('ended', onEnd); });
                 });
             }
 
@@ -2054,79 +2057,31 @@
                 });
             }
 
-            // Second play button (Coke) uses the same audio mapping for now
+            // Second play button (Coke): dynamic audios
             if (playBtnCoke) {
                 playBtnCoke.addEventListener('click', () => {
                     attachEndedHandlersOnce();
-                    // Toggle off if this button is already playing
-                    if (playBtnCoke.classList.contains('playing')) {
-                        stopAllLevelAudios();
-                        releaseButtons();
-                        return;
-                    }
-                    // Always release visual states first
+                    if (playBtnCoke.classList.contains('playing')) { stopAllLevelAudios(); releaseButtons(); return; }
                     releaseButtons();
+                    stopAllLevelAudios();
                     const level = Number(slider.getAttribute('aria-valuenow') || '0');
-                    const audioId = audioIdForLevel(level);
-                    const src = window.__globalSource || 'song';
-                    // Stop ALL level audios to interrupt previous playback
-                    try {
-                        for (let i = 0; i < 6; i++) {
-                            const a = document.getElementById(`audio${i}`);
-                            if (!a) continue;
-                            a.pause(); a.currentTime = 0;
-                        }
-                    } catch (e) {}
-                    const audioEl = document.getElementById(audioId);
-                    if (!audioEl) return;
-                    try { audioEl.muted = false; audioEl.volume = 1.0; } catch (e) {}
-                    if (audioEl.paused) {
-                        audioEl.currentTime = 0;
-                        const p = audioEl.play();
-                        if (p && typeof p.catch === 'function') p.catch(() => {});
-                        playBtnCoke.classList.add('playing');
-                    } else {
-                        // Already playing: just transfer pressed state to this button
-                        playBtnCoke.classList.add('playing');
-                    }
+                    const a = playDynamicAudio('coke', level);
+                    playBtnCoke.classList.add('playing');
+                    a.addEventListener('ended', function onEnd(){ playBtnCoke.classList.remove('playing'); a.removeEventListener('ended', onEnd); });
                 });
             }
 
-            // Third play button (Champagne) uses the same audio mapping for now
+            // Third play button (Champagne): dynamic audios
             if (playBtnChampagne) {
                 playBtnChampagne.addEventListener('click', () => {
                     attachEndedHandlersOnce();
-                    // Toggle off if this button is already playing
-                    if (playBtnChampagne.classList.contains('playing')) {
-                        stopAllLevelAudios();
-                        releaseButtons();
-                        return;
-                    }
-                    // Always release visual states first
+                    if (playBtnChampagne.classList.contains('playing')) { stopAllLevelAudios(); releaseButtons(); return; }
                     releaseButtons();
+                    stopAllLevelAudios();
                     const level = Number(slider.getAttribute('aria-valuenow') || '0');
-                    const audioId = audioIdForLevel(level);
-                    const src = window.__globalSource || 'song';
-                    // Stop ALL level audios to interrupt previous playback
-                    try {
-                        for (let i = 0; i < 6; i++) {
-                            const a = document.getElementById(`audio${i}`);
-                            if (!a) continue;
-                            a.pause(); a.currentTime = 0;
-                        }
-                    } catch (e) {}
-                    const audioEl = document.getElementById(audioId);
-                    if (!audioEl) return;
-                    try { audioEl.muted = false; audioEl.volume = 1.0; } catch (e) {}
-                    if (audioEl.paused) {
-                        audioEl.currentTime = 0;
-                        const p = audioEl.play();
-                        if (p && typeof p.catch === 'function') p.catch(() => {});
-                        playBtnChampagne.classList.add('playing');
-                    } else {
-                        // Already playing: just transfer pressed state to this button
-                        playBtnChampagne.classList.add('playing');
-                    }
+                    const a = playDynamicAudio('champagne', level);
+                    playBtnChampagne.classList.add('playing');
+                    a.addEventListener('ended', function onEnd(){ playBtnChampagne.classList.remove('playing'); a.removeEventListener('ended', onEnd); });
                 });
             }
         })();

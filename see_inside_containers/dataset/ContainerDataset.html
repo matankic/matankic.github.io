@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Containers Dataset</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f8f8f8;
+            margin: 0;
+            padding: 20px;
+        }
+        h1 {
+            color: #333;
+        }
+        .description {
+            font-size: 16px;
+            color: #555;
+            margin-bottom: 20px;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+            text-align: justify;
+        }
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            padding: 20px;
+            max-width: 1000px;
+            margin: auto;
+        }
+        .grid-item {
+            background: white;
+            padding: 10px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            height: auto;
+        }
+        .grid-item img {
+            margin-top: auto;
+            width: 100%;
+            height: auto;
+            border-radius: 10px;
+        }
+        .name {
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        .play-btn {
+            color: #007BFF;
+            cursor: pointer;
+            text-decoration: underline;
+            display: block;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Containers Dataset</h1>
+    <p class="description">This list below details the different container types used in our experiments. Each container has a uniquely interesting response to the speaker's excitation, which you can play by clicking underneath the container name (using headphones is recommended). The container's walls also generate (or pass) sound inside the container, depending on which frequencies are attenuated and which are not. Thus, the sound you hear approximates the sound `heard' within the container (e.g., by a small ant).</p>
+    <div class="grid-container">
+        <script>
+            // Example dataset
+            const containers = [
+                { name: "Oatly Carton", image: "bottle_imgs/Oatly.JPG", sound1: "bottle_sound/Oatly_chirp.wav", sound2: "bottle_sound/Oatly_NeverGonna.wav"},
+                { name: "Coke Can", image: "bottle_imgs/Coke_Can.JPG", sound1: "bottle_sound/Coke Can_chirp.wav", sound2: "bottle_sound/Coke Can_NeverGonna.wav" },
+                { name: "Champagne Glass Bottle", image: "bottle_imgs/Champagne.JPG", sound1: "bottle_sound/Champagne Glass_chirp.wav", sound2: "bottle_sound/Champagne Glass_NeverGonna.wav" },
+                { name: "Almond Milk Carton", image: "bottle_imgs/Almond_Milk_Carton.JPG", sound1: "bottle_sound/Almond Milk Carton_chirp.wav", sound2: "bottle_sound/Almond Milk Carton_NeverGonna.wav" },
+                { name: "Matte Vacuum Flask", image: "bottle_imgs/Delta.JPG", sound1: "bottle_sound/Delta_chirp.wav", sound2: "bottle_sound/Delta_NeverGonna.wav" },
+                { name: "Rice Milk Carton", image: "bottle_imgs/Rice_Milk_Carton.JPG", sound1: "bottle_sound/Rice Milk Carton_chirp.wav", sound2: "bottle_sound/Rice Milk Carton_NeverGonna.wav" },
+                { name: "Pineapple Juice Carton", image: "bottle_imgs/Annanas.JPG", sound1: "bottle_sound/Ananas Juice Carton_chirp.wav", sound2: "bottle_sound/Ananas Juice Carton_NeverGonna.wav" },
+                { name: "Energy Drink Can", image: "bottle_imgs/Energy_drink.JPG", sound1: "bottle_sound/Energy Drink_chirp.wav", sound2: "bottle_sound/Energy Drink_NeverGonna.wav"},
+                { name: "Shampoo Plastic Bottle", image: "bottle_imgs/Shampoo.JPG", sound1: "bottle_sound/Shampoo Plastic_chirp.wav", sound2: "bottle_sound/Shampoo Plastic_NeverGonna.wav" },
+                { name: "Black Vacuum Flask", image: "bottle_imgs/black_vacuum_flask.JPG", sound1: "bottle_sound/Black Vacuum flask_chirp.wav", sound2: "bottle_sound/Black Vacuum flask_NeverGonna.wav" },
+                { name: "Green Tea Plastic Bottle", image: "bottle_imgs/green_tea.JPG", sound1: "bottle_sound/Green Tea Plastic_chirp.wav", sound2: "bottle_sound/Green Tea Plastic_NeverGonna.wav" },
+                { name: "Short Beer Can", image: "bottle_imgs/Short_beer_can.JPG", sound1: "bottle_sound/Short Beer Can_chirp.wav", sound2: "bottle_sound/Short Beer Can_NeverGonna.wav" },
+                { name: "Silver Vacuum Flask", image: "bottle_imgs/Silver_Vacuum_flask.JPG", sound1: "bottle_sound/Shai_chirp.wav", sound2: "bottle_sound/Shai_NeverGonna.wav" },
+                { name: "Coconut Water Carton", image: "bottle_imgs/Coconut.JPG", sound1: "bottle_sound/Coconut Water Carton_chirp.wav", sound2: "bottle_sound/Coconut Water Carton_NeverGonna.wav" },
+                { name: "Oil Tin Can", image: "bottle_imgs/Oil_tin_can.JPG", sound1: "bottle_sound/Oil Tin Can_chirp.wav", sound2: "bottle_sound/Oil Tin Can_NeverGonna.wav" },
+                { name: "Tall Beer Can", image: "bottle_imgs/tall_beer_can.JPG", sound1: "bottle_sound/Tall Beer Can_chirp.wav", sound2: "bottle_sound/Tall Beer Can_NeverGonna.wav" },
+                { name: "Orange Vacuum Flask", image: "bottle_imgs/Orange_Vacuum_flask.JPG", sound1: "bottle_sound/Orange Vacuum flask_chirp.wav", sound2: "bottle_sound/Orange Vacuum flask_NeverGonna.wav" },
+                { name: "Tomato Juice Carton", image: "bottle_imgs/tomato.JPG", sound1: "bottle_sound/Tomato Juice Carton_chirp.wav" , sound2: "bottle_sound/Tomato Juice Carton_NeverGonna.wav"},
+                { name: "Conditioner Plastic Bottle", image: "bottle_imgs/Conditioner.JPG", sound1: "bottle_sound/Conditioner_chirp.wav", sound2: "bottle_sound/Conditioner_NeverGonna.wav" },
+                { name: "Pineapple Nectar Can", image: "bottle_imgs/Pineapple_nectar_tin.JPG", sound1: "bottle_sound/Pineapple Nectar Tin_chirp.wav" , sound2: "bottle_sound/Pineapple Nectar Tin_NeverGonna.wav"},
+                { name: "Contigo Vacuum Flask", image: "bottle_imgs/contigo.JPG", sound1: "bottle_sound/Contigo_chirp.wav" , sound2: "bottle_sound/Contigo_NeverGonna.wav"},
+                { name: "Pitcher Vacuum Flask", image: "bottle_imgs/Pitcher.JPG", sound1: "bottle_sound/Pitcher Vacuum flask_chirp.wav" , sound2: "bottle_sound/Pitcher Vacuum flask_NeverGonna.wav"}
+            ];
+
+
+            containers.forEach(container => {
+                document.write(`
+                    <div class="grid-item">
+                        <img src="${container.image}" alt="${container.name}">
+                        <div class="name">${container.name}</div>
+                        <div class="play-btn" onclick="playSound('${container.sound1}')">🔊 vibrations (Chirp)</div>
+                        <div class="play-btn" onclick="playSound('${container.sound2}')">🔊 vibrations (Never Gonna)</div>
+
+                    </div>
+                `);
+            });
+
+
+            function playSound(soundFile) {
+                let audio = new Audio(soundFile);
+                audio.play();
+            }
+        </script>
+    </div>
+</body>
+</html>

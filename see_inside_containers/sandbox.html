@@ -24,19 +24,28 @@
                 padding: 0;
             }
 
-            .construction-banner {
-                background: #f8f9fa;
-                color: #6c757d;
+            .below-figure-cta {
+                margin-top: 1rem;
                 text-align: center;
-                padding: 10px 20px;
-                font-weight: 500;
-                font-size: 1.5em;
-                border-bottom: 1px solid #dee2e6;
-                position: fixed;
-                top: 0;
-                left: 0;
-                right: 0;
-                z-index: 1000;
+            }
+            .cta-link {
+                display: inline-flex;
+                align-items: center;
+                gap: 0.25rem;
+                margin: -10px 0px 10px 0px;
+                padding: 0.5rem 0.9rem;
+                border-radius: 0.5rem;
+                text-decoration: none;
+                border: 1px solid #ddd;
+                color: #209cee;
+                font-weight: 600;
+            }
+            .cta-link:focus {
+                outline: 2px solid;
+                outline-offset: 2px;
+            }
+            .cta-link:hover {
+                text-decoration: underline;
             }
 
             body {
@@ -2096,6 +2105,20 @@
                             </div>
                         </div>
                     </div>
+                </div>
+
+                <div
+                    class="below-figure-cta"
+                    role="region"
+                    aria-label="More examples"
+                >
+                    <a
+                        href="dataset/ContainerDataset.html"
+                        class="cta-link"
+                        aria-label="Browse all containers and their sounds"
+                    >
+                        Browse all containers and sounds →
+                    </a>
                 </div>
 
                 <p>

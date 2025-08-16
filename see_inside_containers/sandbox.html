@@ -1770,35 +1770,6 @@
             </div>
 
             <h1 class="subtitle">
-                The intuition behind using three speckles in each container
-            </h1>
-            <div class="membrane-wrap">
-                <img
-                    class="membrane-base"
-                    src="membrane/membrane_decomposition.png"
-                    alt="membrane decomposition base"
-                />
-                <div class="membrane-overlay">
-                    <figure class="mode">
-                        <img src="membrane/mode11.gif" alt="mode (1,1)" />
-                        <figcaption>mode (1,1)</figcaption>
-                    </figure>
-                    <figure class="mode">
-                        <img src="membrane/mode12.gif" alt="mode (1,2)" />
-                        <figcaption>mode (1,2)</figcaption>
-                    </figure>
-                    <figure class="mode">
-                        <img src="membrane/mode21.gif" alt="mode (2,1)" />
-                        <figcaption>mode (2,1)</figcaption>
-                    </figure>
-                    <figure class="mode">
-                        <img src="membrane/mode22.gif" alt="mode (2,2)" />
-                        <figcaption>mode (2,2)</figcaption>
-                    </figure>
-                </div>
-            </div>
-
-            <h1 class="subtitle">
                 Can you hear the contents of a Coke bottle?
             </h1>
             <p>
@@ -1876,6 +1847,52 @@
                 />
 
                 <div style="height: 20px"></div>
+
+                <h1 class="subtitle">
+                    Why do we want more than one speckle in each container?
+                </h1>
+                <p>
+                    You might ask: why not use a single laser speckle per
+                    container? Because the vibration is a sum of modes. A single
+                    point already carries rich information, but it only sees its
+                    local mix, and different fill levels can look the same at
+                    that spot. So a single point can be ambiguous. For example,
+                    here are the first four mode shapes of a rectangular
+                    membrane:
+                </p>
+
+                <div class="membrane-wrap">
+                    <img
+                        class="membrane-base"
+                        src="membrane/membrane_decomposition.png"
+                        alt="membrane decomposition base"
+                    />
+                    <div class="membrane-overlay">
+                        <figure class="mode">
+                            <img src="membrane/mode11.gif" alt="mode (1,1)" />
+                            <figcaption>mode (1,1)</figcaption>
+                        </figure>
+                        <figure class="mode">
+                            <img src="membrane/mode12.gif" alt="mode (1,2)" />
+                            <figcaption>mode (1,2)</figcaption>
+                        </figure>
+                        <figure class="mode">
+                            <img src="membrane/mode21.gif" alt="mode (2,1)" />
+                            <figcaption>mode (2,1)</figcaption>
+                        </figure>
+                        <figure class="mode">
+                            <img src="membrane/mode22.gif" alt="mode (2,2)" />
+                            <figcaption>mode (2,2)</figcaption>
+                        </figure>
+                    </div>
+                </div>
+
+                <p>
+                    Multiple speckles capture the spatial pattern of those
+                    modes—the mode shape. That extra context reduces ambiguity.
+                    We now have shape information, not just a local reading,
+                    which helps the model make more reliable predictions.
+                </p>
 
                 <h1 class="subtitle">
                     So why do you need an AI model for this task?
@@ -2080,8 +2097,6 @@
                         </div>
                     </div>
                 </div>
-
-                <div style="height: 60px"></div>
 
                 <p>
                     If you couldn't, don't blame yourself. The vibrational

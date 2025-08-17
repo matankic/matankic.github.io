@@ -25,7 +25,7 @@
             }
             .sv-wrap {
                 max-width: 64rem;
-                margin: 40px 70px 50px 70px;
+                margin: 70px 70px 50px 70px;
             }
 
             .sv-card {
@@ -2214,6 +2214,29 @@
 
                 <h1 class="subtitle">Results</h1>
 
+                <p>
+                    We train on a simple grid: 23 container types, 6 liquid fill
+                    levels, 6 speaker positions, and 2 excitation sounds. To
+                    check generalization we test these four validation
+                    categories:
+                    <b>(a) Within-distribution</b>—same containers, a new
+                    speaker position held out during training (e.g., position
+                    6). <b>(b) Unseen instances</b>—New physical item from a
+                    known class (think the 6th bottle from a six-pack).
+                    <b>(c) Unseen liquid levels</b>—Train on {0,20,…,100%}; test
+                    at in-between levels {25,50,75%}.
+                    <b>(d) Ambient sound</b>—Train on chirp+song; test on a
+                    third, real-world background track:
+                </p>
+
+                <div class="results-wrap">
+                    <img
+                        class="results-base"
+                        src="results/results_legend.png"
+                        alt="results legend"
+                    />
+                </div>
+
                 <div class="sv-wrap">
                     <div class="sv-card">
                         <table
@@ -2283,14 +2306,6 @@
                         Arrows indicate desired metric direction: ↑ Higher is
                         better, ↓ Lower is better.
                     </p>
-                </div>
-
-                <div class="results-wrap">
-                    <img
-                        class="results-base"
-                        src="results/results_legend.png"
-                        alt="results legend"
-                    />
                 </div>
 
                 <!-- hidden audio elements anywhere in the body: -->

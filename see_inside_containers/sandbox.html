@@ -81,7 +81,7 @@
             .sv-caption {
                 text-align: center;
                 color: #6b7280;
-                font-size: 1rem;
+                font-size: 0.9rem;
                 margin-top: 0.75rem;
             }
             .below-figure-cta {
@@ -3127,6 +3127,8 @@
                 setLevel(0);
                 setLevelL(0);
                 // Start independent hint loops (not synchronized)
+                const jitter = () => 2500 + Math.random() * 1500; // 2.5–4s
+
                 function animateSingleHint(hand, sliderEl) {
                     if (!hand || !sliderEl) return;
                     if (hand.__running) return;
@@ -3162,7 +3164,7 @@
                                 setTimeout(() => {
                                     if (hand.__loopActive !== false)
                                         animateSingleHint(hand, sliderEl);
-                                }, 3000);
+                                }, jitter()); // random delay each cycle
                             }, 50);
                         }
                     }

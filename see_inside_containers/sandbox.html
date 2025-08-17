@@ -695,6 +695,16 @@
                 margin-top: 8px;
             }
 
+            .results-wrap {
+                position: relative;
+                max-width: 1400px; /* optional */
+                margin: 20px 30px 10px 50px;
+            }
+            .results-base {
+                width: 100%;
+                display: block;
+            }
+
             .membrane-wrap {
                 --overlay-top: 18%;
                 --overlay-bottom: 10%;
@@ -2139,6 +2149,16 @@
                     classes (e.g., training on five Coke cans of a six-pack,
                     testing on a sixth) and fluid levels.
                 </p>
+
+                <h1 class="subtitle">Results</h1>
+
+                <div class="results-wrap">
+                    <img
+                        class="results-base"
+                        src="results/results_legend.png"
+                        alt="results legend"
+                    />
+                </div>
 
                 <!-- hidden audio elements anywhere in the body: -->
                 <audio

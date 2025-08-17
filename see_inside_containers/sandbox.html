@@ -23,7 +23,69 @@
                 margin: 0;
                 padding: 0;
             }
+            .sv-wrap {
+                max-width: 64rem;
+                margin: 40px 70px 50px 70px;
+            }
 
+            .sv-card {
+                position: relative;
+                overflow-x: auto;
+                border: 1px solid #e5e7eb;
+                border-radius: 10px;
+                box-shadow: 0 12px 24px rgba(0, 0, 0, 0.06);
+            }
+            .sv-table {
+                width: 100%;
+                border-collapse: separate;
+                border-spacing: 0;
+                font-size: 1.2rem;
+                color: #4b5563;
+            }
+            .sv-table thead th {
+                text-transform: uppercase;
+                font-size: 1rem;
+                letter-spacing: 0.03em;
+                background: #f3f4f6;
+                color: #374151;
+                padding: 12px 16px;
+                text-align: center;
+                border-bottom: 1px solid #d1d5db;
+                border-right: 1px solid #d1d5db;
+            }
+            .sv-table thead th.sv-left {
+                text-align: left;
+            }
+            .sv-table tbody th,
+            .sv-table tbody td {
+                padding: 14px 16px;
+                border-bottom: 1px solid #e5e7eb;
+                border-right: 1px solid #d1d5db;
+            }
+            .sv-table tbody th {
+                white-space: nowrap;
+                text-align: left;
+                color: #111827;
+                font-weight: 600;
+            }
+            .sv-table tr:hover {
+                background: #f9fafb;
+                transition: background-color 0.2s;
+            }
+            .sv-table th:last-child,
+            .sv-table td:last-child {
+                border-right: none;
+            }
+            .sv-table tbody tr:last-child th,
+            .sv-table tbody tr:last-child td {
+                border-bottom: none;
+            }
+            .sv-caption {
+                text-align: center;
+                color: #6b7280;
+                font-size: 1rem;
+                margin-top: 0.75rem;
+            }
             .below-figure-cta {
                 margin-top: 1rem;
                 text-align: center;
@@ -2151,6 +2213,77 @@
                 </p>
 
                 <h1 class="subtitle">Results</h1>
+
+                <div class="sv-wrap">
+                    <div class="sv-card">
+                        <table
+                            class="sv-table"
+                            role="table"
+                            aria-label="Model Performance Evaluation"
+                        >
+                            <thead>
+                                <tr>
+                                    <th rowspan="2" class="sv-left">
+                                        Test Name
+                                    </th>
+                                    <th colspan="2">Fill Level Prediction</th>
+                                    <th>Container Classification</th>
+                                </tr>
+                                <tr>
+                                    <th>Accuracy ↑</th>
+                                    <th>MAE Error ↓</th>
+                                    <th>Accuracy ↑</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <th scope="row">(a) within distribution</th>
+                                    <td style="text-align: center">0.98</td>
+                                    <td style="text-align: center">
+                                        0.01 ±0.03
+                                    </td>
+                                    <td style="text-align: center">1.00</td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">(b) unseen instances</th>
+                                    <td style="text-align: center">0.79</td>
+                                    <td style="text-align: center">
+                                        0.09 ±0.19
+                                    </td>
+                                    <td style="text-align: center">0.95</td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">(c) unseen liq. levels</th>
+                                    <td
+                                        style="
+                                            text-align: center;
+                                            color: #9ca3af;
+                                        "
+                                    >
+                                        N/A
+                                    </td>
+                                    <td style="text-align: center">
+                                        0.12 ±0.11
+                                    </td>
+                                    <td style="text-align: center">0.81</td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">(d) ambient sound</th>
+                                    <td style="text-align: center">0.92</td>
+                                    <td style="text-align: center">
+                                        0.04 ±0.12
+                                    </td>
+                                    <td style="text-align: center">0.97</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <p class="sv-caption">
+                        Arrows indicate desired metric direction: ↑ Higher is
+                        better, ↓ Lower is better.
+                    </p>
+                </div>
 
                 <div class="results-wrap">
                     <img

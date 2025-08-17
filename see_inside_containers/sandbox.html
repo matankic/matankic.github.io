@@ -1948,16 +1948,14 @@
                 <div style="height: 20px"></div>
 
                 <h1 class="subtitle">
-                    Why do we want more than one speckle in each container?
+                    Why capture more than a single point per container?
                 </h1>
                 <p>
-                    You might ask: why not use a single laser speckle per
-                    container? Because the vibration is a sum of modes. A single
-                    point already carries rich information, but it only sees its
-                    local mix, and different fill levels can look the same at
-                    that spot. So a single point can be ambiguous. For example,
-                    here are the first four mode shapes of a rectangular
-                    membrane:
+                    The vibrations of many objects can be characterized by their
+                    resonant frequencies, or vibration modes. Each mode is
+                    described by two things: its frequency and its shape. For
+                    example, below is an illustration of the first four mode
+                    shapes of a rectangular membrane:
                 </p>
 
                 <div class="membrane-wrap">
@@ -1987,21 +1985,37 @@
                 </div>
 
                 <p>
-                    Multiple speckles capture the spatial pattern of those
-                    modes—the mode shape. That extra context reduces ambiguity.
-                    We now have shape information, not just a local reading,
-                    which helps the model make more reliable predictions.
+                    While a single vibration measurement on the object surface
+                    captures frequency-related information about the surface
+                    vibrations, capturing multiple points reduces ambiguity by
+                    adding the shape information as well – yielding more
+                    reliable predictions.
                 </p>
 
                 <h1 class="subtitle">
                     So why do you need an AI model for this task?
                 </h1>
                 <p>
-                    The relationship between the vibration response of everyday
-                    containers to their fill level is actually quite complex.
-                    Don't believe us? Try for yourself. Press below the
-                    containers to hear their response for different fill levels.
-                    Can you spot a pattern?
+                    For a few special objects, like the wine glass below, the
+                    relation between the vibration response and the fill level
+                    is relatively straightforward (and not just because the
+                    glass is transparent). However, the vast majority of
+                    everyday containers have a rather complex vibration response
+                    that stems from complex geometry, heterogeneous materials,
+                    the fluid-structure interactions that alter stiffness and
+                    damping, and more. Don't believe us? Try for yourself. Press
+                    below the containers on the right to hear their response for
+                    different fill levels. Can you spot a pattern?
+                </p>
+
+                <p>
+                    If you couldn't, don't blame yourself. The vibrational
+                    response depends on various factors, including object
+                    geometry, materials, fluid-structure interactions, and
+                    additional factors. Luckily, our Vibration Transformer has a
+                    more acute "ear" than you, and can successfully classify the
+                    container's hidden liquid level for a variety of containers
+                    (which we demonstrate experimentally).
                 </p>
 
                 <div class="dual-panels">
@@ -2212,16 +2226,6 @@
                 </div>
 
                 <p>
-                    If you couldn't, don't blame yourself. The vibrational
-                    response depends on various factors, including object
-                    geometry, materials, fluid-structure interactions, and
-                    additional factors. Luckily, our Vibration Transformer has a
-                    more acute "ear" than you, and can successfully classify the
-                    container's hidden liquid level for a variety of containers
-                    (which we demonstrate experimentally).
-                </p>
-
-                <p>
                     Moreover, our architecture is robust to the vibration
                     source, yielding correct liquid level estimates for
                     controlled and ambient scene sound sources. And, our model
@@ -2230,25 +2234,35 @@
                     testing on a sixth) and fluid levels.
                 </p>
 
-                <h1 class="subtitle">Results</h1>
+                <h1 class="subtitle">Experimental results</h1>
 
                 <p>
-                    We train on a simple grid: 23 container types, 6 liquid fill
-                    levels, 6 speaker positions, and 2 excitation sounds. To
-                    check generalization we test these six validation
-                    categories:
-                    <b>(a) Within-distribution</b>—same containers, a new
-                    speaker position held out during training (e.g., position
-                    6). <b>(b) Unseen instances</b>—New physical item from a
-                    known class (think the 6th bottle from a six-pack).
-                    <b>(c) Unseen liquid levels</b>—Train on {0,20,…,100%}; test
-                    at in-between levels {25,50,75%}.
-                    <b>(d) Ambient sound</b>—Train on chirp+song; test on a
-                    third, real-world background track.
-                    <b>(e) Unseen liquid levels + Ambient sound</b>—Test on the
-                    intersection of (c) and (d).
-                    <b>(f) Unseen instances + Ambient sound</b>—Test on the
-                    intersection of (b) and (d).
+                    We trained our model on a dataset of 23 different container
+                    types and tested it in several application-specific
+                    validation categories:
+                </p>
+
+                <p>
+                    <strong>(a) Within-distribution:</strong> Inference on
+                    containers from the 23-container dataset, but for novel
+                    speaker positions.
+                </p>
+
+                <p>
+                    <strong>(b) Unseen instances:</strong> Inference on novel
+                    containers, whose type exists in the 23-container dataset.
+                </p>
+
+                <p>
+                    <strong>(c) Unseen liquid levels:</strong> Inference of
+                    liquid levels not seen in the training set. For example,
+                    training on levels {0, 20, &hellip;, 100%} and testing on
+                    in-between levels {25, 50, 75%}.
+                </p>
+
+                <p>
+                    <strong>(d) Ambient sound:</strong> Inference on sound
+                    excitation emulating ambient background sounds.
                 </p>
 
                 <div class="results-wrap">

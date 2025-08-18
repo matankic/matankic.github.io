@@ -904,11 +904,13 @@
             }
 
             .dual-panels {
-                display: flex;
-                gap: 80px;
-                justify-content: center;
-                align-items: flex-end;
-                flex-wrap: wrap;
+                display: grid;
+                grid-template-columns: max-content max-content; /* no stretching */
+                gap: 60px;
+                width: fit-content; /* shrink-wrap to content */
+                margin: 0 auto; /* center in the page */
+                align-items: end; /* bottom-align both cards */
+                justify-items: center;
             }
 
             .v-slider-row {
@@ -947,6 +949,21 @@
                 touch-action: none;
                 outline: none;
                 transform: translatey(10%);
+            }
+
+            .v-slider-section {
+                min-width: 260px; /* keep the wine card wide enough */
+                padding: 28px;
+                background: #fcfcfc;
+                border: 1px solid#e8e8e8;
+                border-radius: 10px;
+                display: flex;
+                flex-direction: column; /* enable bottom alignment inside */
+            }
+
+            /* push the interactive row to the bottom in BOTH cards */
+            .v-slider-section .v-slider-row {
+                margin-top: auto;
             }
 
             .v-track {
@@ -1015,6 +1032,25 @@
             }
             .v-slider.dragging .v-water {
                 transition: none;
+            }
+
+            .right-column {
+                display: grid;
+                grid-template-rows: auto 1fr;
+                height: 100%;
+            }
+
+            .global-source-wrap {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                margin-bottom: 20px; /* spacing before the card */
+            }
+
+            .global-source-wrap .title {
+                font-size: 0.95em;
+                font-weight: 600;
+                color: #333;
             }
 
             /* Vertical slider hint hand */
@@ -2101,7 +2137,7 @@
                     </div>
 
                     <!-- Right panel: bottles with global source selector -->
-                    <div class="v-slider-section" aria-hidden="false">
+                    <div class="right-column">
                         <div class="global-source-wrap">
                             <div
                                 class="title"
@@ -2142,95 +2178,96 @@
                                 </button>
                             </div>
                         </div>
-                        <div class="v-slider-row">
-                            <div class="v-slider-col">
-                                <div
-                                    class="v-slider"
-                                    id="vSlider"
-                                    role="slider"
-                                    aria-orientation="vertical"
-                                    aria-valuemin="0"
-                                    aria-valuemax="5"
-                                    aria-valuenow="0"
-                                    tabindex="0"
-                                >
-                                    <div class="v-track"></div>
-                                    <div class="v-water" id="vWater"></div>
-                                    <div class="v-ticks" id="vTicks"></div>
+                        <div class="v-slider-section" aria-hidden="false">
+                            <div class="v-slider-row">
+                                <div class="v-slider-col">
                                     <div
-                                        class="v-thumb"
-                                        id="vThumb"
-                                        aria-hidden="true"
-                                    ></div>
-                                    <!-- hint hand icon for vertical slider -->
-                                    <svg
-                                        class="v-hint-hand"
-                                        id="vHintHand"
-                                        viewBox="0 0 64 64"
-                                        aria-hidden="true"
+                                        class="v-slider"
+                                        id="vSlider"
+                                        role="slider"
+                                        aria-orientation="vertical"
+                                        aria-valuemin="0"
+                                        aria-valuemax="5"
+                                        aria-valuenow="0"
+                                        tabindex="0"
                                     >
-                                        <path
-                                            fill="#ffffff"
-                                            stroke="#bbb"
-                                            d="M20 30v-8a4 4 0 0 1 8 0v8h2v-10a4 4 0 0 1 8 0v10h2v-8a4 4 0 0 1 8 0v16c0 7-5 12-12 12h-6c-7 0-12-5-12-12v-8z"
-                                        />
-                                        <circle
-                                            cx="26"
-                                            cy="50"
-                                            r="2"
-                                            fill="#bbb"
-                                        />
-                                    </svg>
+                                        <div class="v-track"></div>
+                                        <div class="v-water" id="vWater"></div>
+                                        <div class="v-ticks" id="vTicks"></div>
+                                        <div
+                                            class="v-thumb"
+                                            id="vThumb"
+                                            aria-hidden="true"
+                                        ></div>
+                                        <!-- hint hand icon for vertical slider -->
+                                        <svg
+                                            class="v-hint-hand"
+                                            id="vHintHand"
+                                            viewBox="0 0 64 64"
+                                            aria-hidden="true"
+                                        >
+                                            <path
+                                                fill="#ffffff"
+                                                stroke="#bbb"
+                                                d="M20 30v-8a4 4 0 0 1 8 0v8h2v-10a4 4 0 0 1 8 0v10h2v-8a4 4 0 0 1 8 0v16c0 7-5 12-12 12h-6c-7 0-12-5-12-12v-8z"
+                                            />
+                                            <circle
+                                                cx="26"
+                                                cy="50"
+                                                r="2"
+                                                fill="#bbb"
+                                            />
+                                        </svg>
+                                    </div>
+                                    <div class="v-slider-label">Fill Level</div>
+                                    <div class="v-value" id="vValue">0%</div>
                                 </div>
-                                <div class="v-slider-label">Fill Level</div>
-                                <div class="v-value" id="vValue">0%</div>
-                            </div>
-                            <div class="v-preview-col">
-                                <img
-                                    id="vPreview"
-                                    class="v-preview-img"
-                                    alt="fill level preview"
-                                />
-                                <button
-                                    class="pushable pushable-inline"
-                                    id="vPlayBtn"
-                                    type="button"
-                                >
-                                    <span class="front">▶</span>
-                                </button>
-                            </div>
-                            <div class="v-preview-col">
-                                <img
-                                    id="vPreviewCoke"
-                                    class="v-preview-img"
-                                    alt="coke fill level preview"
-                                />
-                                <button
-                                    class="pushable pushable-inline"
-                                    id="vPlayBtnCoke"
-                                    type="button"
-                                >
-                                    <span class="front">▶</span>
-                                </button>
-                            </div>
-                            <div class="v-preview-col">
-                                <img
-                                    id="vPreviewChampagne"
-                                    class="v-preview-img"
-                                    alt="champagne fill level preview"
-                                />
-                                <button
-                                    class="pushable pushable-inline"
-                                    id="vPlayBtnChampagne"
-                                    type="button"
-                                >
-                                    <span class="front">▶</span>
-                                </button>
+                                <div class="v-preview-col">
+                                    <img
+                                        id="vPreview"
+                                        class="v-preview-img"
+                                        alt="fill level preview"
+                                    />
+                                    <button
+                                        class="pushable pushable-inline"
+                                        id="vPlayBtn"
+                                        type="button"
+                                    >
+                                        <span class="front">▶</span>
+                                    </button>
+                                </div>
+                                <div class="v-preview-col">
+                                    <img
+                                        id="vPreviewCoke"
+                                        class="v-preview-img"
+                                        alt="coke fill level preview"
+                                    />
+                                    <button
+                                        class="pushable pushable-inline"
+                                        id="vPlayBtnCoke"
+                                        type="button"
+                                    >
+                                        <span class="front">▶</span>
+                                    </button>
+                                </div>
+                                <div class="v-preview-col">
+                                    <img
+                                        id="vPreviewChampagne"
+                                        class="v-preview-img"
+                                        alt="champagne fill level preview"
+                                    />
+                                    <button
+                                        class="pushable pushable-inline"
+                                        id="vPlayBtnChampagne"
+                                        type="button"
+                                    >
+                                        <span class="front">▶</span>
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
-
                 <div
                     class="below-figure-cta"
                     role="region"

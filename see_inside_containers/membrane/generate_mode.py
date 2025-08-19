@@ -122,7 +122,10 @@ def mode(m, n, c, amplitude, ratio, grid_nx, grid_nz, width_px, border_px, previ
 
     def colorize(U, use_dither=False):
         V = U + (dither if use_dither else 0.0)
-        vmax = np.max(np.abs(V)) or 1e-9
+        # ------------------- FIX -------------------
+        # Normalize based on the overall max amplitude for a consistent colormap
+        vmax = amplitude or 1e-9
+        # -------------------------------------------
         norm = colors.TwoSlopeNorm(vmin=-vmax, vcenter=0.0, vmax=vmax)
         return cmap(norm(V))
 
@@ -197,12 +200,14 @@ if __name__ == "__main__":
     ap.add_argument("-m", type=int, required=True, help="Mode number for x-dimension.")
     ap.add_argument("-n", type=int, required=True, help="Mode number for z-dimension.")
     ap.add_argument("-c", type=float, default=1.0, help="Wave speed.")
-    ap.add_argument("-a", "--amplitude", type=float, default=0.35, help="Vibration amplitude.")
+    # ------------------- UPDATED DEFAULTS -------------------
+    ap.add_argument("-a", "--amplitude", type=float, default=0.8, help="Vibration amplitude.")
+    ap.add_argument("--grid_nx", type=int, default=14, help="Number of grid cells in x.")
+    ap.add_argument("--grid_nz", type=int, default=7, help="Number of grid cells in z.")
+    ap.add_argument("--grid_px", type=float, default=10, help="Grid line thickness in pixels.")
+    ap.add_argument("--border_px", type=float, default=10, help="Border thickness in pixels.")
+    # ---------------------------------------------------------
     ap.add_argument("-r", "--ratio", type=float, default=2.5, help="Aspect ratio (Lx / Lz).")
-    ap.add_argument("--grid_nx", type=int, default=30, help="Number of grid cells in x.")
-    ap.add_argument("--grid_nz", type=int, default=15, help="Number of grid cells in z.")
-    ap.add_argument("--grid_px", type=float, default=2.0, help="Grid line thickness in pixels.")
-    ap.add_argument("--border_px", type=float, default=2.0, help="Border thickness in pixels.")
     ap.add_argument("--preview", action="store_true", help="Generate a static PNG instead of an MP4.")
 
     args = ap.parse_args()
@@ -214,7 +219,7 @@ if __name__ == "__main__":
         ratio=args.ratio,
         grid_nx=args.grid_nx,
         grid_nz=args.grid_nz,
-        width_px=args.grid_px, # Corrected: use grid_px directly for thickness
+        width_px=args.grid_px,
         border_px=args.border_px,
         preview=args.preview,
     )

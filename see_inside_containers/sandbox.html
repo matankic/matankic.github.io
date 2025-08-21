@@ -876,6 +876,15 @@
                     margin-right: -10%;
                 }
             }
+            .card {
+                width: 60%;
+                padding: 0px 20px;
+                background: #fcfcfc;
+                border: 1px solid #e8e8e8;
+                border-radius: 10px;
+                display: flex;
+                flex-direction: column;
+            }
 
             .gif-overlay {
                 position: absolute;
@@ -2029,7 +2038,7 @@
                     <div class="membrane-overlay">
                         <figure class="mode">
                             <video
-                                src="membrane/mode-11.mp4"
+                                src="membrane/mode_11.mp4"
                                 autoplay
                                 loop
                                 muted
@@ -2040,7 +2049,7 @@
                         </figure>
                         <figure class="mode">
                             <video
-                                src="membrane/mode-12.mp4"
+                                src="membrane/mode_12.mp4"
                                 autoplay
                                 loop
                                 muted
@@ -2051,7 +2060,7 @@
                         </figure>
                         <figure class="mode">
                             <video
-                                src="membrane/mode-21.mp4"
+                                src="membrane/mode_21.mp4"
                                 autoplay
                                 loop
                                 muted
@@ -2062,7 +2071,7 @@
                         </figure>
                         <figure class="mode">
                             <video
-                                src="membrane/mode-22.mp4"
+                                src="membrane/mode_22.mp4"
                                 autoplay
                                 loop
                                 muted
@@ -2528,17 +2537,7 @@
                 </p>
 
                 <div style="display: flex; justify-content: center">
-                    <div
-                        style="
-                            width: 70%;
-                            padding: 0px 20px;
-                            background: #fcfcfc;
-                            border: 1px solid #e8e8e8;
-                            border-radius: 10px;
-                            display: flex;
-                            flex-direction: column;
-                        "
-                    >
+                    <div class="card" style="width: 60%">
                         <img
                             src="future_work/shaking_present.png"
                             alt="shaking present"
@@ -2555,6 +2554,31 @@
                     location of people and objects in a room by only measuring
                     the wall's vibrations.
                 </p>
+
+                <div style="display: flex; justify-content: center">
+                    <div class="card" style="width: 40%">
+                        <img src="future_work/packages_v1.png" alt="packages" />
+                    </div>
+                    <div style="width: 40px"></div>
+                    <div class="card" style="width: 40%">
+                        <img src="future_work/cargo.png" alt="packages" />
+                    </div>
+                </div>
+                <div
+                    style="
+                        display: flex;
+                        padding-top: 40px;
+                        justify-content: center;
+                    "
+                >
+                    <div class="card" style="width: 40%">
+                        <img src="future_work/packages_v1.png" alt="packages" />
+                    </div>
+                    <div style="width: 40px"></div>
+                    <div class="card" style="width: 40%">
+                        <img src="future_work/cargo.png" alt="packages" />
+                    </div>
+                </div>
 
                 <!-- hidden audio elements anywhere in the body: -->
                 <audio

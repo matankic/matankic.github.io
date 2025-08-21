@@ -95,7 +95,7 @@ def mode(m, n, c, amplitude, ratio, grid_nx, grid_nz, width_px, border_px, previ
     Lz = 1.0
     Lx = ratio * Lz
 
-    fps = 20
+    fps = 60
     nz_surf, nx_surf = 600, int(600 * ratio)  # denser grid reduces aliasing
     x = np.linspace(0.0, Lx, nx_surf)
     z = np.linspace(0.0, Lz, nz_surf)
@@ -199,7 +199,7 @@ if __name__ == "__main__":
     )
     ap.add_argument("-m", type=int, required=True, help="Mode number for x-dimension.")
     ap.add_argument("-n", type=int, required=True, help="Mode number for z-dimension.")
-    ap.add_argument("-c", type=float, default=1.0, help="Wave speed.")
+    ap.add_argument("-c", type=float, default=0.5, help="Wave speed.")
     # ------------------- UPDATED DEFAULTS -------------------
     ap.add_argument("-a", "--amplitude", type=float, default=0.8, help="Vibration amplitude.")
     ap.add_argument("--grid_nx", type=int, default=14, help="Number of grid cells in x.")

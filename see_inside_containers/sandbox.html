@@ -23,6 +23,26 @@
                 margin: 0;
                 padding: 0;
             }
+            .gradient-text {
+                /* Make the text bold */
+                font-weight: bold;
+
+                /* Define the gradient background */
+                background: linear-gradient(
+                    to right,
+                    rgb(135, 39, 87),
+                    rgb(216, 89, 49)
+                );
+
+                /* Clip the background to the text (for Webkit browsers) */
+                -webkit-background-clip: text;
+
+                /* Clip the background to the text (standard) */
+                background-clip: text;
+
+                /* Make the text color transparent to reveal the gradient */
+                color: transparent;
+            }
             .sv-wrap {
                 max-width: 64rem;
                 margin: 70px 80px 50px 80px;
@@ -162,6 +182,14 @@
                 text-decoration: underline;
             }
 
+            .link {
+                color: #209cee;
+                text-decoration: none;
+            }
+
+            .link:hover {
+                text-decoration: underline;
+            }
             .affiliation {
                 font-size: 1.5em;
             }
@@ -2006,8 +2034,9 @@
                     For each container, we measure two-axis vibrations at
                     multiple surface points (three points in the figure above).
                     We input the vibrations into a novel physics-inspired
-                    Vibration Transformer, which is trained to predict the
-                    container type and its hidden liquid level.
+                    <span class="gradient-text">Vibration Transformer</span>,
+                    which is trained to predict the container type and its
+                    hidden liquid level.
                 </p>
 
                 <div style="height: 20px"></div>
@@ -2026,8 +2055,8 @@
                 <p>
                     The vibrations of many objects can be characterized by their
                     resonant frequencies, or vibration modes. Each mode is
-                    described by two things: its frequency and its shape. For
-                    example, below is an illustration of the first four mode
+                    described by two properties: its frequency and its shape.
+                    For example, below is an illustration of the first four mode
                     shapes of a rectangular membrane:
                 </p>
 
@@ -2100,7 +2129,7 @@
                     For a few special objects, like the wine glass below, the
                     relation between the vibration response and the fill level
                     is relatively straightforward (and not just because the
-                    glass is transparent). However, the vast majority of
+                    glass is transparent). However, the <b>vast majority</b> of
                     everyday containers have a rather complex vibration response
                     that stems from complex geometry, heterogeneous materials,
                     the fluid-structure interactions that alter stiffness and
@@ -2339,9 +2368,14 @@
                 <h1 class="subtitle">Experimental results</h1>
 
                 <p>
-                    We trained our model on a dataset of 23 different container
-                    types and tested it in several application-specific
-                    validation categories:
+                    We trained our model on a dataset of
+                    <a
+                        href="https://matankic.github.io/see_inside_containers/dataset/ContainerDataset.html"
+                        class="link"
+                        >23 different container types</a
+                    >
+                    and tested it in several application-specific validation
+                    categories:
                 </p>
 
                 <p>
@@ -2532,29 +2566,40 @@
                 <h1 class="subtitle">Future work</h1>
 
                 <p>
-                    We seek to study what other hidden properties of objects can
-                    be revealed from their surface vibrations using our system.
-                    For example, have you ever received a birthday present and
-                    tried to guess what's inside by shaking the box?
+                    In this work, we showed that vibrations can reveal the
+                    content of an object under particular conditions (i.e., the
+                    liquid level of a container). In future work, we will seek
+                    to generalize this principle to reveal additional hidden
+                    properties of everyday objects and identify the existence of
+                    arbitrary objects within other containers, such as boxes or
+                    even rooms.
                 </p>
 
-                <div style="display: flex; justify-content: center">
+                <div
+                    style="
+                        display: flex;
+                        flex-direction: column;
+                        align-items: center;
+                    "
+                >
                     <div class="card" style="width: 60%">
                         <img
                             src="future_work/shaking_present.png"
                             alt="shaking present"
                         />
                     </div>
+                    <p class="sv-caption">
+                        Have you ever received a birthday present and tried to
+                        guess what's inside by shaking the box?
+                    </p>
                 </div>
 
                 <p>
-                    We ask whether our method can be extended to inferring the
-                    existence of arbitrary objects within other containers, like
-                    boxes or even rooms? Potential applications of our approach
-                    could include identifying packaging errors, identifying the
-                    contents of shipping containers, and detecting the 3D
-                    location of people and objects in a room by only measuring
-                    the wall's vibrations.
+                    Our work opens the door to further research on the semantic
+                    inference of hidden scene properties, such as detecting the
+                    contents of closed packages, fruit ripeness, spoilage in
+                    sealed foods, chemical composition, and other latent
+                    attributes.
                 </p>
 
                 <div
@@ -2562,11 +2607,11 @@
                         display: flex;
                         justify-content: center;
                         align-items: end;
-                        column-gap: 5%; /* Reduced gap slightly for better fit */
+                        column-gap: 10%; /* Reduced gap slightly for better fit */
                         margin-bottom: 30px;
                     "
                 >
-                    <div style="width: 45%">
+                    <div style="width: 35%">
                         <p
                             style="
                                 margin-bottom: 8px;
@@ -2578,7 +2623,7 @@
                         </p>
                         <div
                             class="card"
-                            style="width: 100%; height: 250px; padding: 0"
+                            style="width: 100%; height: 200px; padding: 0"
                         >
                             <img
                                 src="future_work/packages_v1.png"
@@ -2591,43 +2636,7 @@
                             />
                         </div>
                     </div>
-                    <div style="width: 45%">
-                        <p
-                            style="
-                                margin-bottom: 8px;
-                                font-weight: bold;
-                                text-align: left;
-                            "
-                        >
-                            Inspecting shipping containers
-                        </p>
-                        <div
-                            class="card"
-                            style="width: 100%; height: 250px; padding: 0"
-                        >
-                            <img
-                                src="future_work/cargo.png"
-                                alt="Shipping containers at a port"
-                                style="
-                                    width: 100%;
-                                    height: 100%;
-                                    object-fit: contain;
-                                "
-                            />
-                        </div>
-                    </div>
-                </div>
-
-                <div
-                    style="
-                        display: flex;
-                        justify-content: center;
-                        align-items: end;
-                        column-gap: 5%;
-                        margin-bottom: 30px;
-                    "
-                >
-                    <div style="width: 45%">
+                    <div style="width: 35%">
                         <p
                             style="
                                 margin-bottom: 8px;
@@ -2639,7 +2648,7 @@
                         </p>
                         <div
                             class="card"
-                            style="width: 100%; height: 250px; padding: 0"
+                            style="width: 100%; height: 200px; padding: 0"
                         >
                             <img
                                 src="future_work/rover.png"
@@ -2652,7 +2661,18 @@
                             />
                         </div>
                     </div>
-                    <div style="width: 45%">
+                </div>
+
+                <div
+                    style="
+                        display: flex;
+                        justify-content: center;
+                        align-items: end;
+                        column-gap: 10%;
+                        margin-bottom: 30px;
+                    "
+                >
+                    <div style="width: 35%">
                         <p
                             style="
                                 margin-bottom: 8px;
@@ -2664,7 +2684,7 @@
                         </p>
                         <div
                             class="card"
-                            style="width: 100%; height: 250px; padding: 0"
+                            style="width: 100%; height: 200px; padding: 0"
                         >
                             <img
                                 src="future_work/spillage.png"
@@ -2677,17 +2697,7 @@
                             />
                         </div>
                     </div>
-                </div>
-
-                <div
-                    style="
-                        display: flex;
-                        justify-content: center;
-                        align-items: end;
-                        column-gap: 5%;
-                    "
-                >
-                    <div style="width: 45%">
+                    <div style="width: 35%">
                         <p
                             style="
                                 margin-bottom: 8px;
@@ -2695,36 +2705,11 @@
                                 text-align: left;
                             "
                         >
-                            Inspecting fatigue cracks of aircrafts
+                            Detecting and localizing survivors under rubble
                         </p>
                         <div
                             class="card"
-                            style="width: 100%; height: 250px; padding: 0"
-                        >
-                            <img
-                                src="future_work/f35.png"
-                                alt="F-35 fighter jet"
-                                style="
-                                    width: 100%;
-                                    height: 100%;
-                                    object-fit: contain;
-                                "
-                            />
-                        </div>
-                    </div>
-                    <div style="width: 45%">
-                        <p
-                            style="
-                                margin-bottom: 8px;
-                                font-weight: bold;
-                                text-align: left;
-                            "
-                        >
-                            Localizing under rubble
-                        </p>
-                        <div
-                            class="card"
-                            style="width: 100%; height: 250px; padding: 0"
+                            style="width: 100%; height: 200px; padding: 0"
                         >
                             <img
                                 src="future_work/localizing.png"

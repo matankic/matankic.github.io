@@ -15,24 +15,33 @@
                 box-sizing: border-box;
             }
 
+            /* The body now acts as the canvas behind the container */
             body {
                 font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-                max-width: 860px;
-                margin: 0 auto;
-                padding: 60px 30px;
-                background-color: #ffffff;
+                background-color: #ffffff; /* Soft off-white/gray background */
                 color: #444;
                 line-height: 1.3;
+                padding: 40px 10px; /* Space around the floating container */
+            }
+
+            /* The new container that holds the content and casts the shadow */
+            .container {
+                max-width: 1000px;
+                margin: 0 auto;
+                padding: 60px 100px;
+                background-color: #ffffff;
+                border-radius: 24px;
+                box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.08);
             }
 
             a {
-                color: #1a73e8;
+                color: #2f1ae8;
                 text-decoration: none;
                 transition: color 0.2s ease;
             }
 
             a:hover {
-                color: #0d47a1;
+                color: #691ae8;
                 text-decoration: underline;
             }
 
@@ -53,7 +62,7 @@
                 border-radius: 34px;
                 object-fit: cover;
                 flex-shrink: 0;
-                box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+                box-shadow: 0 2px 12px rgba(0,0,0,0.3);
             }
 
             h1 {
@@ -121,7 +130,7 @@
                 display: block;
                 font-size: 17px;
                 font-weight: 600;
-                color: #1a73e8;
+                color: #2f1ae8;
                 margin-bottom: 6px;
                 line-height: 1.4;
             }
@@ -140,7 +149,7 @@
             .research-venue {
                 font-size: 15px;
                 color: #666;
-                margin-bottom: 12px;
+                margin-bottom: 8px;
                 font-style: italic;
             }
 
@@ -153,12 +162,12 @@
                 border-radius: 4px;
                 font-size: 14px;
                 display: inline-block;
-                margin-left: 8px; /* Adds space after the venue name */
-                vertical-align: middle; /* Keeps it aligned with the text */
+                margin-left: 8px;
+                vertical-align: middle;
             }
 
             .research-links {
-                margin-bottom: 12px;
+                margin-bottom: 8px;
                 display: flex;
                 gap: 10px;
                 flex-wrap: wrap;
@@ -178,17 +187,17 @@
 
             .research-links a:hover {
                 background-color: #f8f9fa;
-                border-color: #1a73e8;
-                color: #1a73e8;
+                border-color: #2f1ae8;;
+                color: #2f1ae8;;
                 text-decoration: none;
             }
 
             .research-description {
                 font-size: 14px;
+                color: #444;
                 line-height: 1.3;
             }
 
-            /* --- Standard Academic Teaching Section Styles --- */
             .teaching-category {
                 margin-bottom: 25px;
             }
@@ -202,19 +211,24 @@
 
             .teaching-list {
                 list-style-type: disc;
-                padding-left: 35px; /* Increased intent */
+                padding-left: 35px;
                 color: #444;
             }
 
             .teaching-list li {
                 font-size: 15px;
-                margin-bottom: 4px; /* Tighter margin between items */
-                line-height: 1.35; /* Denser line-height for the list */
+                margin-bottom: 4px;
+                line-height: 1.35;
             }
 
             @media (max-width: 768px) {
                 body {
+                    padding: 20px 10px;
+                }
+
+                .container {
                     padding: 40px 20px;
+                    border-radius: 16px;
                 }
 
                 .header {
@@ -246,146 +260,153 @@
         </style>
     </head>
     <body>
-        <div class="header">
-            <div class="header-content">
-                <h1>Matan Kichler</h1>
-                <div class="bio">
-                    I am a Ph.D. Candidate (Direct Track) in the Department of Computer Science
-                    and Applied Mathematics at the
-                    <a href="https://www.weizmann.ac.il/pages/" target="_blank"
-                        >Weizmann Institute of Science</a
-                    >
-                    advised by
-                    <a href="https://www.marksheinin.com/" target="_blank"
-                        >Assistant Prof. Mark Sheinin</a
-                    >.
+        <div class="container">
+            <div class="header">
+                <div class="header-content">
+                    <h1>Matan Kichler</h1>
+                    <div class="bio">
+                        I am a Ph.D. Candidate (Direct Track) in the Department of Computer Science
+                        and Applied Mathematics at the
+                        <a href="https://www.weizmann.ac.il/pages/" target="_blank"
+                            >Weizmann Institute of Science</a
+                        >
+                        advised by
+                        <a href="https://www.marksheinin.com/" target="_blank"
+                            >Assistant Prof. Mark Sheinin</a
+                        >.
+                    </div>
+                    <div class="bio">
+                        I received my B.Sc. in Computer Science (summa cum laude)
+                        and B.Sc. in Applied Mathematics (summa cum laude) from
+                        <a href="https://www.hit.ac.il/en" target="_blank"
+                            >Holon Institute of Technology (HIT)</a
+                        >.
+                    </div>
+                    <div class="bio">
+                        My research focuses on pioneering computational imaging
+                        techniques that unite deep learning with laser-based optical
+                        sensing to redefine the limits of visual perception. My
+                        vision is to illuminate unseen phenomena, enabling humanity
+                        to measure, interpret, and understand the world in entirely
+                        new ways.
+                    </div>
+                    <div class="contact-links">
+                        <a href="mailto:matankic@gmail.com">Email</a> /
+                        <a href="data/cv.pdf">CV</a> /
+                        <a href="https://scholar.google.com/citations?user=7NTzSDQAAAAJ">Google Scholar</a> /
+                        <a href="https://www.linkedin.com/in/kichler/">LinkedIn</a>
+                    </div>
                 </div>
-                <div class="bio">
-                    I received my B.Sc. in Computer Science (summa cum laude)
-                    and B.Sc. in Applied Mathematics (summa cum laude) from
-                    <a href="https://www.hit.ac.il/en" target="_blank"
-                        >Holon Institute of Technology (HIT)</a
-                    >.
-                </div>
-                <div class="bio">
-                    My research focuses on pioneering computational imaging
-                    techniques that unite deep learning with laser-based optical
-                    sensing to redefine the limits of visual perception. My
-                    vision is to illuminate unseen phenomena, enabling humanity
-                    to measure, interpret, and understand the world in entirely
-                    new ways.
-                </div>
-                <div class="contact-links">
-                    <a href="mailto:matankic@gmail.com">Email</a> /
-                    <a href="data/cv.pdf">CV</a> /
-                    <a href="https://scholar.google.com/citations?user=7NTzSDQAAAAJ">Google Scholar</a> /
-                    <a href="https://www.linkedin.com/in/kichler/">LinkedIn</a>
-                </div>
-            </div>
-            <img
-                src="images/Profile.png"
-                alt="Matan Kichler"
-                class="profile-image"
-            />
-        </div>
-
-        <div class="section">
-            <h2>Research</h2>
-            
-            <div class="research-item">
                 <img
-                    src="images/thumbnail_hearing_drum.png"
-                    alt="Hearing the drum Thumbnail"
-                    class="research-image"
+                    src="images/Profile.png"
+                    alt="Matan Kichler"
+                    class="profile-image"
                 />
-                <div class="research-content">
-                    <a
-                        href="https://shaibagon.github.io/hearing_the_shape_of_the_drum/"
-                        class="research-title"
-                        >Hearing the Room Through the Shape of the Drum: Modal-Guided Sound Recovery from Multi-Point Surface Vibrations</a
-                    >
-                    <div class="research-authors">
-                        Shai Bagon, 
-                        <b>Matan Kichler</b>,
-                        Mark Sheinin
+            </div>
+
+            <div class="section">
+                <h2>Research</h2>
+                
+                <div class="research-item">
+                    <img
+                        src="images/thumbnail_hearing_drum.png"
+                        alt="Hearing the drum Thumbnail"
+                        class="research-image"
+                    />
+                    <div class="research-content">
+                        <a
+                            href="https://shaibagon.github.io/hearing_the_shape_of_the_drum/"
+                            class="research-title"
+                            >Hearing the Room Through the Shape of the Drum: Modal-Guided Sound Recovery from Multi-Point Surface Vibrations</a
+                        >
+                        <div class="research-authors">
+                            Shai Bagon, 
+                            <b>Matan Kichler</b>,
+                            Mark Sheinin
+                        </div>
+                        <div class="research-venue">
+                            CVPR 2026 
+                            <span class="highlight-award">
+                                Oral Presentation
+                            </span> 
+                        </div>
+                        <div class="research-links">
+                            <a href="https://shaibagon.github.io/hearing_the_shape_of_the_drum/html_assets/Hearing_the_Drum_Through_Its_Shape__CVPR26_.pdf">ArXiv</a>
+                            <a href="https://shaibagon.github.io/hearing_the_shape_of_the_drum/">Project Page</a>
+                            <a href="https://shaibagon.github.io/hearing_the_shape_of_the_drum/html_assets/results.html">Audio</a>
+                        </div>
+                        <div class="research-description">
+                            We significantly improve speckle-based sound recovery from ordinary, acoustically poor objects by fusing signals from many surface points using a physics-guided vibration model.
+                        </div>
                     </div>
-                    <div class="research-venue">
-                        CVPR 2026 
-                        <span class="highlight-award">
-                            Oral Presentation
-                        </span> 
-                    </div>
-                    <div class="research-links">
-                        <a href="https://shaibagon.github.io/hearing_the_shape_of_the_drum/html_assets/Hearing_the_Drum_Through_Its_Shape__CVPR26_.pdf">ArXiv</a>
-                        <a href="https://shaibagon.github.io/hearing_the_shape_of_the_drum/">Project Page</a>
-                        <a href="https://shaibagon.github.io/hearing_the_shape_of_the_drum/html_assets/results.html">Audio</a>
-                    </div>
-                    <div class="research-description">
-                        We significantly improve speckle-based sound recovery from ordinary, acoustically poor objects by fusing signals from many surface points using a physics-guided vibration model.
+                </div>
+
+                <div class="research-item">
+                    <img
+                        src="images/thumbnail_see_inside.png"
+                        alt="See Inside Containers Thumbnail"
+                        class="research-image"
+                    />
+                    <div class="research-content">
+                        <a
+                            href="https://matankic.github.io/see_inside_containers/"
+                            class="research-title"
+                            >Learning to See Inside Opaque Liquid Containers using
+                            Speckle Vibrometry</a
+                        >
+                        <div class="research-authors">
+                            <b>Matan Kichler</b>,
+                            Shai Bagon, 
+                            Mark Sheinin
+                        </div>
+                        <div class="research-venue">
+                            ICCV 2025 
+                            <span class="highlight-award">
+                                Best Paper Award @ Responsible Imaging Workshop
+                            </span> 
+                        </div>
+                        <div class="research-links">
+                            <a href="https://arxiv.org/abs/2507.20757">ArXiv</a>
+                            <a href="https://matankic.github.io/see_inside_containers/">Project Page</a>
+                        </div>
+                        <div class="research-description">
+                            We present a novel speckle-based vibrometry system that
+                            captures surface vibrations of opaque liquid containers
+                            remotely, enabling first-of-its-kind inference of hidden
+                            liquid levels without physical handling or weighing.
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <div class="research-item">
-                <img
-                    src="images/thumbnail_see_inside.png"
-                    alt="See Inside Containers Thumbnail"
-                    class="research-image"
-                />
-                <div class="research-content">
-                    <a
-                        href="https://matankic.github.io/see_inside_containers/"
-                        class="research-title"
-                        >Learning to See Inside Opaque Liquid Containers using
-                        Speckle Vibrometry</a
-                    >
-                    <div class="research-authors">
-                        <b>Matan Kichler</b>,
-                        Shai Bagon, 
-                        Mark Sheinin
-                    </div>
-                    <div class="research-venue">
-                        ICCV 2025 
-                        <span class="highlight-award">
-                            Best Paper Award @ Responsible Imaging Workshop
-                        </span> 
-                    </div>
-                    <div class="research-links">
-                        <a href="https://arxiv.org/abs/2507.20757">ArXiv</a>
-                        <a href="https://matankic.github.io/see_inside_containers/">Project Page</a>
-                    </div>
-                    <div class="research-description">
-                        We present a novel speckle-based vibrometry system that
-                        captures surface vibrations of opaque liquid containers
-                        remotely, enabling first-of-its-kind inference of hidden
-                        liquid levels without physical handling or weighing.
-                    </div>
+            <div class="section">
+                <h2>Teaching</h2>
+                
+                <div class="bio" style="margin-bottom: 20px;">
+                    I have served as a Teaching Assistant; leading recitations, grading exams, and holding office hours for the following courses:
                 </div>
-            </div>
-        </div>
-
-        <div class="section">
-            <h2>Teaching</h2>
             
-            <div class="bio" style="margin-bottom: 20px;">
-                I have served as a Teaching Assistant; leading recitations, grading exams, and holding office hours for the following courses:
+                <div class="teaching-category">
+                    <h3>Weizmann Institute of Science</h3>
+                    <ul class="teaching-list">
+                        <li>Computational Imaging course (Winter 2026).</li>
+                    </ul>
+                </div>
+            
+                <div class="teaching-category">
+                    <h3>Holon Institute of Technology (HIT)</h3>
+                    <ul class="teaching-list">
+                        <li>Partial Differential Equations course (Spring 2024).</li>
+                        <li>Complex Functions course (Spring 2024).</li>
+                        <li>Probability Theory course (Winter 2024).</li>
+                        <li>Linear Algebra course (Winter 2024).</li>
+                    </ul>
+                </div>
             </div>
-        
-            <div class="teaching-category">
-                <h3>Weizmann Institute of Science</h3>
-                <ul class="teaching-list">
-                    <li>Computational Imaging course (Winter 2026).</li>
-                </ul>
-            </div>
-        
-            <div class="teaching-category">
-                <h3>Holon Institute of Technology (HIT)</h3>
-                <ul class="teaching-list">
-                    <li>Partial Differential Equations course (Spring 2024).</li>
-                    <li>Complex Functions course (Spring 2024).</li>
-                    <li>Probability Theory course (Winter 2024).</li>
-                    <li>Linear Algebra course (Winter 2024).</li>
-                </ul>
+            
+            <div style="text-align: center; margin-top: 50px; padding-top: 30px; border-top: 1px solid #eaeaea; color: #888; font-size: 13px; line-height: 1.5;">
+                &copy; 2026 Matan Kichler. All rights reserved.<br>
+                Design inspired by <a href="https://jonbarron.info/" target="_blank" style="color: #888; text-decoration: underline;">Jon Barron</a>.
             </div>
         </div>
     </body>
